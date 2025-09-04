@@ -10,18 +10,18 @@ from controllers.Astar import AstarAgent
 from controllers.MCTS import MCTSAgent
 
 if __name__ == "__main__":
-    
-    print("Game start!")
-    level = 0 #第一关
-    env = BaitEnv(level=level, render=False)
-    
-    # actions: 0 noop, 1 left, 2 right, 3 down, 4 up
     parser = argparse.ArgumentParser(description="Bait 游戏，请选择执行模式")
     parser.add_argument(
         "--mode",
-        choices=["random" , "play", "depthfirst", "limitdepthfirst", "Astar", "MCTS"],
+        choices=["random", "play", "depthfirst", "limitdepthfirst", "Astar", "MCTS"],
         required=True,
-        help="运行模式:random--随机运行；depthfirst--深度优先搜索；limitdepthfirst--"
+        help="运行模式:random--随机运行；depthfirst--深度优先搜索；limitdepthfirst--深度受限的深度优先搜索；Aster--A*算法；MCTS--蒙特卡洛树算法。"
+    )
+    parser.add_argument(
+        "--level",
+        choices=['0','1','2','3','4'],
+        required=True,
+        help="游戏关卡：0~4，共5关。"
     )
 
     args = parser.parse_args()
@@ -30,10 +30,14 @@ if __name__ == "__main__":
         format="%(asctime)s [%(levelname)s] %(message)s",
         handlers=[logging.StreamHandler(sys.stdout)]
     )
+    print("Game start!")
+    level = int(args.level)
+    env = BaitEnv(level=level, render=False)
+    
+    # actions: 0 noop, 1 left, 2 right, 3 down, 4 up
 
     action_lst = None
     if args.mode == "play":
-        # input your own actions here
         tick_max = 30
         action_lst = [3, 2, 3, 1, 3, 4, 4, 4, 1, 0]
     elif args.mode == "random":
@@ -50,6 +54,7 @@ if __name__ == "__main__":
     elif args.mode == "Astar":
         tick_max = 100
         agent = AstarAgent(env, tick_max)
+        action_lst = agent.solve()
     elif args.mode == "MCTS":
         tick_max = 1000
         agent = MCTSAgent(env, tick_max)
