@@ -1,12 +1,10 @@
 import copy
 from env import BaitEnv
-import numpy as np
 class LimitedDFSAgent:
     def __init__(self, env:BaitEnv, tick_max):
         self.env = env
         self.tick_max = tick_max
         self.tick = 0
-        # Your can add new attributes if needed
         self.closed=[]
         self.action=[]
 
@@ -15,52 +13,68 @@ class LimitedDFSAgent:
         if self.tick > self.tick_max:
             assert 0
 
+        action_with_distance={}
         for action_id in actions:
-            env_copy = copy.deepcopy(env)
-            #TODO:实现位置查找和距离计算
+            env_copy = copy.deepcopy(env) #每次copy的都是原来传进来的env对吧
             next_state, reward, isOver, info = env_copy.step(action_id)
-            sorted_actions=self.calculate_distance(next_state)
+            action_with_distance[action_id]=self.calculate_distance(next_state)
+        sorted_dict = dict(sorted(action_with_distance.items(), key=lambda item: item[1]))
+        sorted_actions=list(sorted_dict.keys())
 
         for action_id in sorted_actions:
-            if next_state in self.closed:  # 这边走过了或者是撞墙上了或者是推不动，应该是吧。
-                continue  # 直接进入下一个方向
-            self.tick += 1  # 没有走过，就步数加一
+            env_copy = copy.deepcopy(env)
+            next_state, reward, isOver, info = env_copy.step(action_id)
+            if next_state in self.closed:
+                continue
+            self.tick += 1
             print(f"Used steps: {self.tick} / {self.tick_max}")
-            if isOver and info['message'] != 'Fell into hole. Game over.':  # 游戏结束并且没掉洞里（成功）
-                self.action.append(action_id)  # 把这步加入目标
+            if isOver and info['message'] != 'Fell into hole. Game over.':
+                self.action.append(action_id)
                 return True
-            else:  # 掉洞里或者撞墙或者就是普通的没有成功在路上//或者是没钥匙单撞门了
-                if isOver:  # 掉洞里了
-                    return False  # 返回到上一个函数，然后就是删掉这一步。
-                elif info != {} and info['message'] == "Need key to open goal":  # 撞墙不会产生新状态，但没钥匙撞门会。
-                    self.closed.append(next_state)  # 加入新状态
-                    continue  # 处理和走入旧状态是一样的
-                else:  # 在路上
-                    self.closed.append(next_state)  # 这个新状态加进去
-                    self.action.append(action_id)  # 这一步加进去
-                    if self.dfs(env_copy, actions):
+            else:
+                if isOver:
+                    return False
+                elif info != {} and info['message'] == "Need key to open goal":
+                    self.closed.append(next_state)
+                    continue
+                else:
+                    self.closed.append(next_state)
+                    self.action.append(action_id)
+                    if self.limiteddfs(env_copy, actions):
                         return True
                     self.action.pop()
-                    self.tick -= 1  # 如果接下来的都返回False，说明这一步走不通，删掉。
+                    self.tick -= 1
         return False
 
     def solve(self):
-        self.env.reset()  # Reset environment to start a new episode
+        self.env.reset()
         actions = self.env.action_space
         actions.pop(0)
         if self.limiteddfs(self.env,actions):
             action_sequence = self.action
-        return action_sequence
+            return action_sequence
+        return None
 
     def calculate_distance(self,state):
-        np_state=np.array(state)
-        if np.isin('key', np_state):
-            A_indice=np.where(np_state=="avatar_nokey")
-            K_indice=np.where(np_state=='key')
-            print(A_indice,K_indice)
-            sorted_actions=[]
-        return sorted_actions
+        K_indice=self.find_value(state,'key')
+        G_indice=self.find_value(state,'goal')
+        if K_indice:
+            A_index=self.find_value(state,"avatar_nokey")[0]
+            K_index=K_indice[0]
+            distance=abs(K_index[0]-A_index[0])+abs(K_index[1]-A_index[1])
+        elif G_indice:
+            A_index=self.find_value(state,'avatar_withkey')[0]
+            G_index=self.find_value(state,'goal')[0]
+            distance = abs(G_index[0] - A_index[0]) + abs(G_index[1] - A_index[1])
+        else:
+            distance=0
+        return distance
 
+    @staticmethod
+    def find_value(arr, target):
+        return [(i, j) for i, row in enumerate(arr)
+                for j, cell in enumerate(row)
+                if target in cell]
 
     def act(self, env):
         
