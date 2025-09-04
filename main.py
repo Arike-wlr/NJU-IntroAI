@@ -21,7 +21,7 @@ if __name__ == "__main__":
         "--mode",
         choices=["random" , "play", "depthfirst", "limitdepthfirst", "Astar", "MCTS"],
         required=True,
-        help="运行模式:random--随机运行；depthfirst--深度优先搜索；。。。"
+        help="运行模式:random--随机运行；depthfirst--深度优先搜索；limitdepthfirst--"
     )
 
     args = parser.parse_args()
@@ -46,6 +46,7 @@ if __name__ == "__main__":
     elif args.mode == "limitdepthfirst":
         tick_max = 100
         agent = LimitedDFSAgent(env, tick_max)
+        action_lst = agent.solve()
     elif args.mode == "Astar":
         tick_max = 100
         agent = AstarAgent(env, tick_max)

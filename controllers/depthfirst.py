@@ -2,7 +2,6 @@ import copy
 
 from env import BaitEnv
 
-
 class DFSAgent:
     def __init__(self, env :BaitEnv, tick_max):
         self.env = env
@@ -50,3 +49,6 @@ class DFSAgent:
             action_sequence = self.action
             return action_sequence
         return None
+
+    def act(self, env):
+        raise NotImplementedError
