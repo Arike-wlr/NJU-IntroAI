@@ -1,5 +1,6 @@
 import copy
 from env import BaitEnv
+from math import inf
 class LimitedDFSAgent:
     def __init__(self, env:BaitEnv, tick_max):
         self.env = env
@@ -58,16 +59,21 @@ class LimitedDFSAgent:
     def calculate_distance(self,state):
         K_indice=self.find_value(state,'key')
         G_indice=self.find_value(state,'goal')
-        if K_indice:
-            A_index=self.find_value(state,"avatar_nokey")[0]
-            K_index=K_indice[0]
-            distance=abs(K_index[0]-A_index[0])+abs(K_index[1]-A_index[1])
-        elif G_indice:
-            A_index=self.find_value(state,'avatar_withkey')[0]
-            G_index=self.find_value(state,'goal')[0]
-            distance = abs(G_index[0] - A_index[0]) + abs(G_index[1] - A_index[1])
+        AN_indice=self.find_value(state,"avatar_nokey")
+        AW_indice=self.find_value(state,'avatar_withkey')
+        if AN_indice or AW_indice:
+            if K_indice:
+                A_index=AN_indice[0]
+                K_index=K_indice[0]
+                distance=abs(K_index[0]-A_index[0])+abs(K_index[1]-A_index[1])
+            elif G_indice:
+                A_index=AW_indice[0]
+                G_index=G_indice[0]
+                distance = abs(G_index[0] - A_index[0]) + abs(G_index[1] - A_index[1])
+            else:
+                distance=0
         else:
-            distance=0
+            distance=inf
         return distance
 
     @staticmethod

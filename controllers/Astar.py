@@ -3,7 +3,9 @@ class AstarAgent:
         self.env = env
         self.tick_max = tick_max
         self.tick = 0
-        # Your can add new attributes if needed
+        self.action=[]
+        self.open=[]
+        self.close=[]
 
     def astar(self):
 
@@ -13,14 +15,17 @@ class AstarAgent:
         raise NotImplementedError
 
     def solve(self):
-        state = self.env.reset()  # Reset environment to start a new episode
+        self.env.reset()  # Reset environment to start a new episode
         actions = self.env.action_space
-        
-        raise NotImplementedError
-    
-        action_sequence = self.astar()
+        actions.pop(0)
+        if self.astar():
+            action_sequence = self.action
         return action_sequence
+    def cost(self):
+        pass
 
+    def inspire(self):
+        pass
     def act(self, env):
         
         raise NotImplementedError
