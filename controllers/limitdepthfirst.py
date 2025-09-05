@@ -57,6 +57,7 @@ class LimitedDFSAgent:
         return None
 
     def calculate_distance(self,state):
+        #TODO:使箱子和洞离得更近？
         K_indice=self.find_value(state,'key')
         G_indice=self.find_value(state,'goal')
         AN_indice=self.find_value(state,"avatar_nokey")
