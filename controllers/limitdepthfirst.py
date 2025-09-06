@@ -58,18 +58,18 @@ class LimitedDFSAgent:
 
     def calculate_distance(self,state):
         #TODO:使箱子和洞离得更近？
-        K_indice=self.find_value(state,'key')
-        G_indice=self.find_value(state,'goal')
-        AN_indice=self.find_value(state,"avatar_nokey")
-        AW_indice=self.find_value(state,'avatar_withkey')
-        if AN_indice or AW_indice:
-            if K_indice:
-                A_index=AN_indice[0]
-                K_index=K_indice[0]
+        K_indices=self.find_value(state,'key')
+        G_indices=self.find_value(state,'goal')
+        AN_indices=self.find_value(state,"avatar_nokey")
+        AW_indices=self.find_value(state,'avatar_withkey')
+        if AN_indices or AW_indices:
+            if K_indices:
+                A_index=AN_indices[0]
+                K_index=K_indices[0]
                 distance=abs(K_index[0]-A_index[0])+abs(K_index[1]-A_index[1])
-            elif G_indice:
-                A_index=AW_indice[0]
-                G_index=G_indice[0]
+            elif G_indices:
+                A_index=AW_indices[0]
+                G_index=G_indices[0]
                 distance = abs(G_index[0] - A_index[0]) + abs(G_index[1] - A_index[1])
             else:
                 distance=0
