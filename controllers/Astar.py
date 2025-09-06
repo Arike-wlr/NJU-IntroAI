@@ -61,8 +61,8 @@ class AstarAgent:
             self.open.remove(curr)
             self.tick += 1
             print(f"Used steps: {self.tick}")
-            if self.tick > self.tick_max:
-                assert 0
+            #if self.tick > self.tick_max:
+            #    assert 0
 
             if curr.h==0:
                 action=[]
