@@ -66,7 +66,7 @@ if __name__ == "__main__":
 
     env = BaitEnv(level=level, render=True)
     env.reset()
-    for step in range(min(30, action_lst_len)):
+    for step in range(min(tick_max, action_lst_len)):
         if action_lst:
             action_id = action_lst[step]
         else:
