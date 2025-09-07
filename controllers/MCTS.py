@@ -18,9 +18,15 @@ class Node:
             self.state = self.parent.state + [move]
 
     def is_fully_expanded(self):
+
+        """判断是否四个方向都尝试过一遍了。"""
+
         return len(self.children) == len(ACTIONS)
 
     def expand(self):
+
+        """随机选一个没有尝试过的方向尝试，并把结果加入该节点的children参数，返回该子节点。"""
+
         moves_tried = [child.move for child in self.children]
         untried_moves = [move for move in ACTIONS if move not in moves_tried]
         move = random.choice(untried_moves)
@@ -31,19 +37,23 @@ class Node:
         return child_node
 
     def simulate(self):
-        if self.env.done:
+
+        """随机一步步向前走"""
+
+        if self.env.done:#如果此时游戏结束，goal存在就是死了，返回（0分，用1步），goal不存在就是赢了，返回（5分，用1步）。
             return (0, 1) if self.env.goal_exists else (5, 1)
+        #如果还没结束
         env = copy.deepcopy(self.env)
         score = 0
         done = False
         used_ticks = 0
-        while not done:
+        while not done:#循环
             action = random.choice(ACTIONS)
             _, reward, done, _ = env.step(action)
             used_ticks += 1
             score += reward
             if done or len(self.state) + used_ticks > 20:
-                break
+                break #游戏结束或者走过的路超过了20步，就停止。
         return score, used_ticks
 
     def backpropagate(self, result):
