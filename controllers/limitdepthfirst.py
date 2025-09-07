@@ -11,14 +11,22 @@ class LimitedDFSAgent:
 
     def limiteddfs(self,env,actions):
 
-        if self.tick > self.tick_max:
-            assert 0
+        #if self.tick > self.tick_max:
+           # assert 0
 
         action_with_distance={}
         for action_id in actions:
             env_copy = copy.deepcopy(env) #每次copy的都是原来传进来的env对吧
             next_state, reward, isOver, info = env_copy.step(action_id)
-            action_with_distance[action_id]=self.calculate_distance(next_state)
+            action_with_distance[action_id] = self.dis_between_box_hole(next_state)
+            min_dis = min(action_with_distance.values())
+            new_actions=[act for act, dis in action_with_distance.items() if dis == min_dis]
+
+        action_with_distance={}
+        for action in new_actions:
+            env_copy = copy.deepcopy(env)
+            next_state, reward, isOver, info = env_copy.step(action)
+            action_with_distance[action] = self.calculate_distance(next_state)
         sorted_dict = dict(sorted(action_with_distance.items(), key=lambda item: item[1]))
         sorted_actions=list(sorted_dict.keys())
 
@@ -57,7 +65,6 @@ class LimitedDFSAgent:
         return None
 
     def calculate_distance(self,state):
-        #TODO:使箱子和洞离得更近？
         K_indices=self.find_value(state,'key')
         G_indices=self.find_value(state,'goal')
         AN_indices=self.find_value(state,"avatar_nokey")
@@ -76,6 +83,16 @@ class LimitedDFSAgent:
         else:
             distance=inf
         return distance
+
+    def dis_between_box_hole(self,state):
+        b_indices=self.find_value(state,'box')
+        h_indices=self.find_value(state,'hole')
+        total_dis=0
+        if b_indices and h_indices:
+            for b in b_indices:
+                for h in h_indices:
+                    total_dis+=abs(b[0]-h[0])+abs(b[1]-h[1])
+        return total_dis
 
     @staticmethod
     def find_value(arr, target):
