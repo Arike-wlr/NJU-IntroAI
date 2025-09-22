@@ -1,7 +1,8 @@
 import copy
-
+import  argparse
 from env import BaitEnv
-
+import logging
+import sys
 from controllers.random import RandomAgent
 from controllers.depthfirst import DFSAgent
 from controllers.limitdepthfirst import LimitedDFSAgent
@@ -9,42 +10,62 @@ from controllers.Astar import AstarAgent
 from controllers.MCTS import MCTSAgent
 
 if __name__ == "__main__":
-    
+    parser = argparse.ArgumentParser(description="Bait 游戏，请选择执行模式")
+    parser.add_argument(
+        "--mode",
+        choices=["random", "play", "depthfirst", "limitdepthfirst", "Astar", "MCTS"],
+        required=True,
+        help="运行模式:random--随机运行；depthfirst--深度优先搜索；limitdepthfirst--深度受限的深度优先搜索；Aster--A*算法；MCTS--蒙特卡洛树算法。"
+    )
+    parser.add_argument(
+        "--level",
+        choices=['0','1','2','3','4'],
+        required=True,
+        help="游戏关卡：0~4，共5关。"
+    )
+
+    args = parser.parse_args()
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s [%(levelname)s] %(message)s",
+        handlers=[logging.StreamHandler(sys.stdout)]
+    )
     print("Game start!")
-    level = 0 #第一关
+    level = int(args.level)
     env = BaitEnv(level=level, render=False)
     
     # actions: 0 noop, 1 left, 2 right, 3 down, 4 up
-    
-    mode = "random" # "play", "random", "depthfirst", "limitdepthfirst", "Astar", "MCTS"
+
     action_lst = None
-    if mode == "play":
-        # input your own actions here
+    if args.mode == "play":
         tick_max = 30
         action_lst = [3, 2, 3, 1, 3, 4, 4, 4, 1, 0]
-    elif mode == "random":
+    elif args.mode == "random":
         tick_max = 30
         agent = RandomAgent(env, tick_max)
-    elif mode == "depthfirst":
+    elif args.mode == "depthfirst":
         tick_max = 10000
         agent = DFSAgent(env, tick_max)
         action_lst = agent.solve()
-    elif mode == "limitdepthfirst":
-        tick_max = 100
+    elif args.mode == "limitdepthfirst":
+        tick_max = 30
         agent = LimitedDFSAgent(env, tick_max)
-    elif mode == "Astar":
+    elif args.mode == "Astar":
         tick_max = 100
         agent = AstarAgent(env, tick_max)
-    elif mode == "MCTS":
+        action_lst = agent.solve()
+    elif args.mode == "MCTS":
         tick_max = 1000
         agent = MCTSAgent(env, tick_max)
+    else:
+        raise ValueError(f"未知模式: {args.mode}")
 
     print("Action list:", action_lst)
     action_lst_len = len(action_lst) if action_lst else 1e8
 
     env = BaitEnv(level=level, render=True)
     env.reset()
-    for step in range(min(30, action_lst_len)):
+    for step in range(min(tick_max, action_lst_len)):
         if action_lst:
             action_id = action_lst[step]
         else:
