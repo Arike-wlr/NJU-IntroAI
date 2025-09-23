@@ -1,8 +1,8 @@
 import copy
+
 class Node:
     def __init__(self, state, env, reward, g, father=None, action_id=None):
         self.state = state
-        self.tick = 1
         self.env = env
         self.g = g
         self.h = self.Get_h(self.state, reward)
@@ -39,11 +39,7 @@ class Node:
         return distance
 
     def Get_h(self, state, reward):
-        return self.Get_distance(state)+self.tick -reward # 用时尽可能少 分数尽可能多
-
-    def update_tick(self):
-        if self.father:
-            self.tick=self.father.tick + 1
+        return self.Get_distance(state)+self.g -reward # 用时尽可能少 分数尽可能多
 
     @staticmethod
     def find_value(arr, target):
@@ -67,10 +63,9 @@ class AstarAgent:
             curr = self.find_least_cost(min_box) # 找f最小的
             self.close.append(curr) # 找过的节点加上这个f最小的
             self.open.remove(curr) #找过的从open里去掉。
-            curr.update_tick()
-            print(f"Used steps: {curr.tick}")
-            # if self.tick > self.tick_max:
-            #    assert 0
+            if curr.g > self.tick_max:
+                continue
+            print(f"Used steps: {curr.g}/{self.tick_max}")
 
             if curr.distance == 0: #距离为0，成功
                 action = []
