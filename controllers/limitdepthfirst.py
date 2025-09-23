@@ -36,32 +36,43 @@ class LimitedDFSAgent:
             distance = 1e8
         return distance+bias
 
-    def limiteddfs(self, env):
-        opt_grade = 1e8
-        sign = False  # 用于标记当前节点是否有可行的子节点,最初设为没有
-        for action_id in self.env.action_space:
-            env_copy = copy.deepcopy(env)
-            state, reward, isOver, info = env_copy.step(action_id)  # 进行一步操作
-            self.tick += 1
+    def limiteddfs(self, env,actions): # 用法 新 *
+            best_grade = 1e8  # 跟踪最大值
+            valid_flag = False
+            for action_id in actions:
+                env_copy = copy.deepcopy(env)
+                next_state, reward, isOver, info = env_copy.step(action_id)
+                # 检查是否已访问过该状态
+                if next_state in self.closed:  # 重复
+                    continue
+                if 'Cannot push box' in info.get('message', ''):
+                    continue
+                valid_flag = True
+                self.tick += 1
+                if isOver:
+                    if info.get('message') != 'Fell into hole. Game over.':  # 成功
+                        self.closed.append(next_state)
+                        grade = self.heuristic(next_state, reward)
+                    else:  # 死掉
+                        self.tick -= 1
+                        valid_flag = False
+                        continue
+                elif self.tick > self.tick_max:  # 超过最大步数
+                    self.closed.append(next_state)
+                    grade = self.heuristic(next_state, reward)
+                elif info != {} and info.get('message') == "Need key to open goal":  # 没钥匙撞门
+                    self.closed.append(next_state)
+                    self.tick -= 1
+                    continue
+                else:  # 在路上
+                    self.closed.append(next_state)
+                    grade = self.limiteddfs(env_copy, actions)
 
-            if state in self.closed or info == {'message': 'Fell into hole. Game over.'}:
-                # 1.重复,退回去，下一步；与2.死掉，退回去，下一步。
-                self.tick -= 1
-                continue
-
-            sign = True  # 这一步没有重复也没有死掉，没问题。
-            self.closed.append(state)
-            if isOver or self.tick > self.tick_max:
-                # 3.赢了，使用启发式函数评估当前状态，4.超了，使用启发式函数评估当前状态。
-                opt_grade = min(opt_grade, self.heuristic(state, reward))
-            else:  # 5.在路上，递归调用自身继续搜索。
-                opt_grade = min(opt_grade, self.limiteddfs(env_copy))
-
-        self.tick -= 1  # 回退步数计数器（回溯）
-        if not sign:
-            return 1e8  # 如果没有有效子节点，返回极大值表示无效路径
-        else:
-            return opt_grade  # 否则返回找到的最优代价
+                best_grade = min(best_grade, grade)
+            if not valid_flag:
+                return 1e8
+            else:
+                return best_grade
 
     def act(self, env):
         """ 进行一次搜索，返回最优的方向 """
@@ -80,7 +91,7 @@ class LimitedDFSAgent:
 
             self.closed = []
             self.tick = 0
-            grade = min(self.heuristic(state, reward), self.limiteddfs(env_copy))
+            grade = min(self.heuristic(state, reward), self.limiteddfs(env_copy,self.env.action_space))
 
             if opt_grade > grade:
                 opt_grade = grade
