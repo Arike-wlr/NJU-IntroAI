@@ -52,23 +52,22 @@ class LimitedDFSAgent:
                 if isOver:
                     if info.get('message') != 'Fell into hole. Game over.':  # 成功
                         self.closed.append(next_state)
-                        grade = self.heuristic(next_state, reward)
+                        best_grade = min(best_grade,self.heuristic(next_state, reward))
                     else:  # 死掉
                         self.tick -= 1
                         valid_flag = False
                         continue
                 elif self.tick > self.tick_max:  # 超过最大步数
                     self.closed.append(next_state)
-                    grade = self.heuristic(next_state, reward)
+                    best_grade = min(best_grade,self.heuristic(next_state, reward))
                 elif info != {} and info.get('message') == "Need key to open goal":  # 没钥匙撞门
                     self.closed.append(next_state)
                     self.tick -= 1
                     continue
                 else:  # 在路上
                     self.closed.append(next_state)
-                    grade = self.limiteddfs(env_copy, actions)
-
-                best_grade = min(best_grade, grade)
+                    best_grade =min(best_grade, self.limiteddfs(env_copy, actions))
+            self.tick -= 1
             if not valid_flag:
                 return 1e8
             else:
