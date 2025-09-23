@@ -17,9 +17,7 @@ class Node:
         B_indices=self.find_value(self.state,'box')
         return len(B_indices)
 
-    def Get_h(self,state,reward):
-        bias = self.tick  # 用时尽可能少
-        bias -= reward  # 尽可能多得奖励
+    def Get_h(self,state):
 
         K_indices = self.find_value(state, 'key')
         G_indices = self.find_value(state, 'goal')
@@ -40,7 +38,7 @@ class Node:
                 distance = 0
         else:  # 人没了
             distance = 1e8
-        return distance + bias
+        return distance
 
     @staticmethod
     def find_value(arr, target):

@@ -6,7 +6,7 @@ import sys
 from controllers.random import RandomAgent
 from controllers.depthfirst import DFSAgent
 from controllers.limitdepthfirst import LimitedDFSAgent
-from controllers.Astar import AstarAgent
+from Test import AstarAgent
 from controllers.MCTS import MCTSAgent
 
 if __name__ == "__main__":
