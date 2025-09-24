@@ -58,8 +58,7 @@ class AstarAgent:
 
     def astar(self, actions):
         while self.open:  # 当open非空的时候
-            min_box = self.inspire(self.open)  # 剩下箱子数最少的
-            curr = self.find_least_cost(min_box)  # 找f最小的
+            curr = self.find_least_cost(self.open)  # 找f最小的
             self.close.append(curr)  # 找过的节点加上这个f最小的
             self.open.remove(curr)  # 找过的从open里去掉。
             if curr.g > self.tick_max:
@@ -115,12 +114,6 @@ class AstarAgent:
     def find_least_cost(nodes):
         f = [node.f for node in nodes]  # 提取所有的f值
         return nodes[f.index(min(f))]
-
-    @staticmethod
-    def inspire(nodes):
-        box = [node.box for node in nodes]  # 提取所有的box值
-        min_val = min(box)
-        return [node for node in nodes if node.box == min_val]
 
     def act(self, env):
 
