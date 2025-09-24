@@ -57,6 +57,7 @@ if __name__ == "__main__":
     elif args.mode == "MCTS":
         tick_max = 1000
         agent = MCTSAgent(env, tick_max)
+        action_lst = agent.solve()
     else:
         raise ValueError(f"未知模式: {args.mode}")
 
