@@ -9,12 +9,7 @@ class Node:
         self.f = self.h + self.g
         self.father = father  # father直接存储另一个 Node对象时，自然就是“指针”行为
         self.action_id = action_id
-        self.box = self.get_box_number()
         self.distance = self.Get_distance(self.state)
-
-    def get_box_number(self):
-        B_indices = self.find_value(self.state, 'box')
-        return len(B_indices)
 
     def Get_distance(self, state):
         K_indices = self.find_value(state, 'key')

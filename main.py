@@ -9,6 +9,22 @@ from controllers.limitdepthfirst import LimitedDFSAgent
 from controllers.Astar import AstarAgent
 from controllers.MCTS import MCTSAgent
 
+"""
+！！注意！！
+
+我对main.py进行了一点小小的修改，运行时需要输入相应的参数来选择使用的方法和关卡。
+运行需要输入：
+```cmd
+python main.py --mode <运行方法> --level <关卡名>
+```
+运行方法包括：["random", "play", "depthfirst", "limitdepthfirst", "Astar", "MCTS"]
+关卡包括：['0','1','2','3','4']
+也可输入 --help 查询：
+```cmd
+python main.py --help
+```
+"""
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Bait 游戏，请选择执行模式")
     parser.add_argument(
