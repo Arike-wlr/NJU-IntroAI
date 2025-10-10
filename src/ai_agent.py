@@ -27,29 +27,31 @@ def minmax_decider(
     MinMax Decider algorithm for selecting the best move for the AI player.
 
     Parameters:
-        game (OthelloGame): The current game state.
+        game (OthelloGame): The current game state.当前游戏局势
         max_depth (int): The maximum search depth for the Alpha-Beta algorithm.
+        Alpha-Beta剪枝的最大深度
         maximizing_player (bool): True if maximizing player (AI), False if minimizing player (opponent).
-
+        用这个参数来控制当前是要选最大值还是最小值，从而把两个（min和max）函数合在一起。
     Returns:
         tuple: A tuple containing the evaluation value of the best move and the corresponding move (row, col).
+        最好步骤的评估值和对应的走法。
     """
-    if max_depth == 0 or game.is_game_over():
+    if max_depth == 0 or game.is_game_over(): #如果已经游戏结束或者达到了最大的深度限制：
         return evaluate_game_state(game), None
 
     valid_moves = game.get_valid_moves()
 
-    if maximizing_player:
+    if maximizing_player: #如果是AI走，需要获取最大值
         max_eval = float("-inf")
         best_move = None
 
         for move in valid_moves:
             new_game = OthelloGame(player_mode=game.player_mode)
             new_game.board = [row[:] for row in game.board]
-            new_game.current_player = game.current_player
-            new_game.make_move(*move)
+            new_game.current_player = game.current_player #创建一个当前游戏状态的副本
+            new_game.make_move(*move) #move包括行坐标和列坐标，走了一步
 
-            eval, _ = minmax_decider(new_game, max_depth - 1, False)
+            eval, _ = minmax_decider(new_game, max_depth - 1, False) #递归
 
             if eval > max_eval:
                 max_eval = eval
