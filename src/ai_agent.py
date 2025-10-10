@@ -13,7 +13,8 @@ def get_best_move(game, max_depth=6):
     Returns:
         tuple: A tuple containing the evaluation value of the best move and the corresponding move (row, col).
     """
-    _, best_move = minmax_decider(game, max_depth)
+    #_, best_move = minmax_decider(game, max_depth)
+    _, best_move = alphabeta_decider(game, max_depth)
     # _, best_move = mtd_f(game, 0, max_depth)
     return best_move
 
@@ -84,8 +85,42 @@ def alphabeta_decider(
     MinMax Decider algorithm for selecting the best move for the AI player.
     """
     # Your implementation for Alpha beta pruning
-    pass
+    if max_depth ==0 or game.is_game_over():
+        return evaluate_game_state(game), None
+    valid_moves = game.get_valid_moves()
+    if maximizing_player: #如果是AI走，需要获取最大值
+        max_eval = float("-inf")
+        best_move = None
+        for move in valid_moves:
+            new_game = OthelloGame(player_mode=game.player_mode)
+            new_game.board = [row[:] for row in game.board]
+            new_game.current_player = game.current_player
+            new_game.make_move(*move)
+            eval, _ = alphabeta_decider(new_game, max_depth - 1, False,alpha,beta) #递归
+            if eval > max_eval:
+                max_eval = eval
+                best_move = move
+            alpha= max (alpha,eval)
+            if alpha >= beta:
+                break
+        return max_eval, best_move
 
+    else:
+        min_eval = float("inf")
+        best_move = None
+        for move in valid_moves:
+            new_game = OthelloGame(player_mode=game.player_mode)
+            new_game.board = [row[:] for row in game.board]
+            new_game.current_player = game.current_player
+            new_game.make_move(*move)
+            eval, _ = alphabeta_decider(new_game, max_depth - 1, True,alpha,beta)
+            if eval < min_eval:
+                min_eval = eval
+                best_move = move
+            beta=min(beta,eval)
+            if alpha>=beta:
+                break
+        return min_eval, best_move
 
 def mtd_f(game, guess, max_depth):
     """

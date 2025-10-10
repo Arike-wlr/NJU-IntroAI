@@ -1,5 +1,6 @@
 import pygame
 import sys
+import time
 from othello_game import OthelloGame
 from ai_agent import get_best_move
 
@@ -132,14 +133,26 @@ class OthelloGUI:
         """
         Run the main game loop until the game is over and display the result.
         """
+
+        round_count = 0
+
         while not self.game.is_game_over():
             self.handle_input()
 
             # If it's the AI player's turn
             if self.game.player_mode == "ai" and self.game.current_player == -1:
+                round_count+=1
                 self.message = "AI is thinking..."
                 self.draw_board()  # Display the thinking message
+
+                start_time = time.time()
+
                 ai_move = get_best_move(self.game)
+
+                end_time = time.time()
+                think_time = end_time - start_time
+                print(f"第{round_count}轮，AI思考时间: {think_time:.2f}秒")
+
                 pygame.time.delay(500)  # Wait for a short time to show the message
                 if ai_move is not None:
                     self.game.make_move(*ai_move)
