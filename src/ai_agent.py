@@ -162,19 +162,21 @@ def mtd_f(game, guess, max_depth):
 def evaluate_game_state(game):
     """
     Evaluates the current game state for the AI player.
-
     Parameters:
         game (OthelloGame): The current game state.
-
     Returns:
         float: The evaluation value representing the desirability of the game state for the AI player.
     """
-    # Evaluation weights for different factors
-    coin_parity_weight = 1.0
-    mobility_weight = 2.0
-    corner_occupancy_weight = 5.0
-    stability_weight = 3.0
-    edge_occupancy_weight = 2.5
+    weights=get_dynamic_weights(game)
+
+    POSITION_WEIGHTS = [[500,-25,10,5 ,5 ,10,-25,500],
+                        [-25,-45,1 ,1 ,1 ,1 ,-45,-25],
+                        [10 ,1  ,3 ,2 ,2 ,3 ,1  ,10 ],
+                        [5  ,1  ,2 ,1 ,1 ,2 ,1  ,5  ],
+                        [5  ,1  ,2 ,1 ,1 ,2 ,1  ,5  ],
+                        [10 ,1  ,3 ,2 ,2 ,3 ,1  ,10 ],
+                        [-25,-45,1 ,1 ,1 ,1,-45 ,-25],
+                        [500,-25,10,5 ,5 ,10,-25,500]]
 
     # Coin parity (difference in disk count)
     player_disk_count = sum(row.count(game.current_player) for row in game.board)
@@ -203,23 +205,53 @@ def evaluate_game_state(game):
 
     # Combine the factors with the corresponding weights to get the final evaluation value
     evaluation = (
-        coin_parity * coin_parity_weight
-        + mobility * mobility_weight
-        + corner_occupancy * corner_occupancy_weight
-        + stability * stability_weight
-        + edge_occupancy * edge_occupancy_weight
+        coin_parity * weights['coin_parity']#_weight
+        + mobility * weights['mobility']#_weight
+        + corner_occupancy * weights['corner_occupancy']#_weight
+        + stability * weights['stability']#_weight
+        + edge_occupancy * weights['edge_occupancy']#_weight
     )
 
     return evaluation
 
+def get_dynamic_weights(game):
+    """根据游戏阶段动态调整权重"""
+    total_disks = sum(1 for row in game.board for cell in row if cell != 0)
+    game_phase = total_disks / 64  # 0-1, 0=开局, 1=终局
+
+    if game_phase < 0.3:  # 开局
+        return {
+            'coin_parity': 0.5,  # 开局棋子数量不重要
+            'mobility': 3.0,  # 行动力很重要
+            'corner_occupancy': 8.0,  # 角落极其重要
+            'stability': 1.0,  # 稳定性不太重要
+            'edge_occupancy': 1.5 , # 边缘中等重要
+            'positional_score':1.0
+        }
+    elif game_phase < 0.7:  # 中局
+        return {
+            'coin_parity': 1.0,
+            'mobility': 2.0,
+            'corner_occupancy': 6.0,
+            'stability': 3.0,
+            'edge_occupancy': 2.0,
+            'positional_score': 1.0
+        }
+    else:  # 终局
+        return {
+            'coin_parity': 3.0,  # 棋子数量最重要
+            'mobility': 0.5,  # 行动力不重要
+            'corner_occupancy': 2.0,
+            'stability': 2.0,
+            'edge_occupancy': 0.5,
+            'positional_score': 1.0
+        }
 
 def calculate_stability(game):
     """
     Calculates the stability of the AI player's disks on the board.
-
     Parameters:
         game (OthelloGame): The current game state.
-
     Returns:
         int: The number of stable disks for the AI player.
     """
@@ -232,12 +264,12 @@ def calculate_stability(game):
             if (dr, dc) != (0, 0) and 0 <= row + dr < 8 and 0 <= col + dc < 8
         ]
 
-    # 定义棋盘区域。
+    # 划分棋盘区域。
     corners = [(0, 0), (0, 7), (7, 0), (7, 7)]
-    edges = [(i, j) for i in [0, 7] for j in range(1, 7)] + [
-        (i, j) for i in range(1, 7) for j in [0, 7]
+    edges = [(i, j) for i in [0, 7] for j in range(2, 6)] + [
+        (i, j) for i in range(2, 6) for j in [0, 7]
     ]
-    inner_region = [(i, j) for i in range(1, 7) for j in range(1, 7)]
+    inner_region = [(i, j) for i in range(2, 6) for j in range(2, 6)]
     regions = [corners, edges, inner_region]
 
     stable_count = 0
