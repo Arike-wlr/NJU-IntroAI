@@ -1,5 +1,5 @@
 from othello_game import OthelloGame
-
+import copy
 
 def get_best_move(game, max_depth=6):
     """
@@ -157,7 +157,20 @@ def mtd_f(game, guess, max_depth):
     
     return g, best_move
 
+def get_position_weights(game):
+    total_disks = sum(1 for row in game.board for cell in row if cell != 0)
+    game_phase = total_disks / 64  # 0-1, 0=开局, 1=终局
 
+    if game_phase < 0.3:  # 开局
+        return [[500,-25,10,5 ,5 ,10,-25,500],
+                        [-25,-45,1 ,1 ,1 ,1 ,-45,-25],
+                        [10 ,1  ,3 ,2 ,2 ,3 ,1  ,10 ],
+                        [5  ,1  ,2 ,1 ,1 ,2 ,1  ,5  ],
+                        [5  ,1  ,2 ,1 ,1 ,2 ,1  ,5  ],
+                        [10 ,1  ,3 ,2 ,2 ,3 ,1  ,10 ],
+                        [-25,-45,1 ,1 ,1 ,1,-45 ,-25],
+                        [500,-25,10,5 ,5 ,10,-25,500]]
+    #TODO:三个阶段的权重
 
 def evaluate_game_state(game):
     """
@@ -168,15 +181,7 @@ def evaluate_game_state(game):
         float: The evaluation value representing the desirability of the game state for the AI player.
     """
     weights=get_dynamic_weights(game)
-
-    POSITION_WEIGHTS = [[500,-25,10,5 ,5 ,10,-25,500],
-                        [-25,-45,1 ,1 ,1 ,1 ,-45,-25],
-                        [10 ,1  ,3 ,2 ,2 ,3 ,1  ,10 ],
-                        [5  ,1  ,2 ,1 ,1 ,2 ,1  ,5  ],
-                        [5  ,1  ,2 ,1 ,1 ,2 ,1  ,5  ],
-                        [10 ,1  ,3 ,2 ,2 ,3 ,1  ,10 ],
-                        [-25,-45,1 ,1 ,1 ,1,-45 ,-25],
-                        [500,-25,10,5 ,5 ,10,-25,500]]
+    POSITION_WEIGHTS = get_position_weights(game)
 
     # Coin parity (difference in disk count)
     player_disk_count = sum(row.count(game.current_player) for row in game.board)
@@ -185,9 +190,11 @@ def evaluate_game_state(game):
 
     # Mobility (number of valid moves for the current player)
     player_valid_moves = len(game.get_valid_moves())
-    opponent_valid_moves = len(
-        OthelloGame(player_mode=-game.current_player).get_valid_moves()
-    )
+
+    temp_game = copy.deepcopy(game)
+    temp_game.current_player = -game.current_player
+    opponent_valid_moves = len(temp_game.get_valid_moves())
+
     mobility = player_valid_moves - opponent_valid_moves
 
     # Stability (number of stable disks)
@@ -241,34 +248,69 @@ def calculate_stability(game):
     Returns:
         int: The number of stable disks for the AI player.
     """
+    BOARD_SIZE=8
 
-    def neighbors(row, col):
-        return [
-            (row + dr, col + dc)
-            for dr in [-1, 0, 1]
-            for dc in [-1, 0, 1]
-            if (dr, dc) != (0, 0) and 0 <= row + dr < 8 and 0 <= col + dc < 8
+    # 使用集合记录已确认的稳定子
+    confirmed_stable = set()
+
+    def is_valid_position(row, col):
+        return 0 <= row < BOARD_SIZE and 0 <= col < BOARD_SIZE
+
+    # 初始稳定子：角落棋子
+    corners = [(0, 0), (0, 7), (7, 0), (7, 7)]
+    for r, c in corners:
+        if game.board[r][c] == game.current_player:
+            confirmed_stable.add((r, c))
+
+    def is_stable_in_direction(row, col, dr, dc):
+        """
+        判断棋子在某个方向上是否稳定
+        """
+        # 检查相邻位置
+        r, c = row + dr, col + dc
+
+        # 情况1：紧邻边界 → 稳定
+        if not is_valid_position(r, c):
+            return True
+
+        # 情况2：紧邻已确认的稳定子 → 稳定
+        if (r, c) in confirmed_stable:
+            return True
+
+        # 如果相邻位置是空位或对手棋子，这个方向不稳定
+        if game.board[r][c] != game.current_player:
+            return False
+
+        # 递归检查相邻的同色棋子是否稳定
+        return is_stable_in_direction(r, c, dr, dc)
+
+    def is_fully_stable(row, col):
+        """判断棋子是否在四个方向都稳定"""
+        directions =  [
+            (0, 1), (1, 0), (0, -1), (-1, 0),   # 正交方向
+            (1, 1), (1, -1), (-1, 1), (-1, -1)  # 对角线方向
         ]
 
-    # 划分棋盘区域。
-    corners = [(0, 0), (0, 7), (7, 0), (7, 7)]
-    edges = [(i, j) for i in [0, 7] for j in range(2, 6)] + [
-        (i, j) for i in range(2, 6) for j in [0, 7]
-    ]
-    inner_region = [(i, j) for i in range(2, 6) for j in range(2, 6)]
-    regions = [corners, edges, inner_region]
+        # 计算稳定方向的数量
+        stable_directions = 0
+        for dr, dc in directions:
+            if is_stable_in_direction(row, col, dr, dc):
+                stable_directions += 1
 
-    stable_count = 0
+        # 放宽条件：多数方向稳定即可认为是稳定子
+        return stable_directions >= 6  # 可以根据需要调整阈值
 
-    def is_stable_disk(row, col):
-        return (
-            all(game.board[r][c] == game.current_player for r, c in neighbors(row, col))
-            or (row, col) in edges + corners
-        )
+    # 稳定性传播：从已确认的稳定子开始，寻找新的稳定子
+    changed = True
+    while changed:
+        changed = False
+        for r in range(BOARD_SIZE):
+            for c in range(BOARD_SIZE):
+                if (r, c) in confirmed_stable:
+                    continue  # 已经是稳定子，跳过
+                if game.board[r][c] == game.current_player:
+                    if is_fully_stable(r, c):
+                        confirmed_stable.add((r, c))
+                        changed = True
 
-    for region in regions:
-        for row, col in region:
-            if game.board[row][col] == game.current_player and is_stable_disk(row, col):
-                stable_count += 1
-
-    return stable_count
+    return len(confirmed_stable)
