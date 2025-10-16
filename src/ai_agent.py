@@ -232,13 +232,14 @@ def calculate_stability(game):
             if (dr, dc) != (0, 0) and 0 <= row + dr < 8 and 0 <= col + dc < 8
         ]
 
+    # 定义棋盘区域。
     corners = [(0, 0), (0, 7), (7, 0), (7, 7)]
     edges = [(i, j) for i in [0, 7] for j in range(1, 7)] + [
         (i, j) for i in range(1, 7) for j in [0, 7]
     ]
-    inner_region = [(i, j) for i in range(2, 6) for j in range(2, 6)]
+    inner_region = [(i, j) for i in range(1, 7) for j in range(1, 7)]
     regions = [corners, edges, inner_region]
-#定义棋盘区域。
+
     stable_count = 0
 
     def is_stable_disk(row, col):
