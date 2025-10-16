@@ -190,26 +190,18 @@ def evaluate_game_state(game):
     )
     mobility = player_valid_moves - opponent_valid_moves
 
-    # Corner occupancy (number of player disks in the corners)
-    corner_occupancy = sum(
-        game.board[i][j] for i, j in [(0, 0), (0, 7), (7, 0), (7, 7)]
-    )
-
     # Stability (number of stable disks)
     stability = calculate_stability(game)
-        
-    # Edge occupancy (number of player disks on the edges)
-    edge_occupancy = sum(game.board[i][j] for i in [0, 7] for j in range(1, 7)) + sum(
-        game.board[i][j] for i in range(1, 7) for j in [0, 7]
-    )
+
+    # Positional_score
+    positional_score=0 #TODO:遍历棋盘
 
     # Combine the factors with the corresponding weights to get the final evaluation value
     evaluation = (
         coin_parity * weights['coin_parity']#_weight
         + mobility * weights['mobility']#_weight
-        + corner_occupancy * weights['corner_occupancy']#_weight
         + stability * weights['stability']#_weight
-        + edge_occupancy * weights['edge_occupancy']#_weight
+        + positional_score * weights['positional_score']#_weight
     )
 
     return evaluation
@@ -223,27 +215,21 @@ def get_dynamic_weights(game):
         return {
             'coin_parity': 0.5,  # 开局棋子数量不重要
             'mobility': 3.0,  # 行动力很重要
-            'corner_occupancy': 8.0,  # 角落极其重要
             'stability': 1.0,  # 稳定性不太重要
-            'edge_occupancy': 1.5 , # 边缘中等重要
-            'positional_score':1.0
+            'positional_score':5.0
         }
     elif game_phase < 0.7:  # 中局
         return {
             'coin_parity': 1.0,
             'mobility': 2.0,
-            'corner_occupancy': 6.0,
             'stability': 3.0,
-            'edge_occupancy': 2.0,
             'positional_score': 1.0
         }
     else:  # 终局
         return {
             'coin_parity': 3.0,  # 棋子数量最重要
             'mobility': 0.5,  # 行动力不重要
-            'corner_occupancy': 2.0,
             'stability': 2.0,
-            'edge_occupancy': 0.5,
             'positional_score': 1.0
         }
 
