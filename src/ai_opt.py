@@ -18,7 +18,6 @@ def get_best_move(game, max_depth=6):
     # _, best_move = mtd_f(game, 0, max_depth)
     return best_move
 
-
 def minmax_decider(
     game, 
     max_depth, 
@@ -49,7 +48,7 @@ def minmax_decider(
         for move in valid_moves:
             new_game = OthelloGame(player_mode=game.player_mode)
             new_game.board = [row[:] for row in game.board]
-            new_game.current_player = game.current_player #创建一个当前游戏状态的副本
+            new_game.current_player = game.current_player #以上三行为创建一个当前游戏状态的副本
             new_game.make_move(*move) #move包括行坐标和列坐标，走了一步
 
             eval, _ = minmax_decider(new_game, max_depth - 1, False) #递归
@@ -76,7 +75,6 @@ def minmax_decider(
                 best_move = move
 
         return min_eval, best_move
-    
 
 def alphabeta_decider(
     game, max_depth, maximizing_player=True, alpha=float("-inf"), beta=float("inf")
@@ -162,15 +160,23 @@ def get_position_weights(game):
     game_phase = total_disks / 64  # 0-1, 0=开局, 1=终局
 
     if game_phase < 0.3:  # 开局
-        return [[500,-25,10,5 ,5 ,10,-25,500],
-                        [-25,-45,1 ,1 ,1 ,1 ,-45,-25],
-                        [10 ,1  ,3 ,2 ,2 ,3 ,1  ,10 ],
-                        [5  ,1  ,2 ,1 ,1 ,2 ,1  ,5  ],
-                        [5  ,1  ,2 ,1 ,1 ,2 ,1  ,5  ],
-                        [10 ,1  ,3 ,2 ,2 ,3 ,1  ,10 ],
-                        [-25,-45,1 ,1 ,1 ,1,-45 ,-25],
-                        [500,-25,10,5 ,5 ,10,-25,500]]
-    #TODO:三个阶段的权重
+        return  [[500,-25,10,5 ,5 ,10,-25,500],
+                [-25,-45,1 ,1 ,1 ,1 ,-45,-25],
+                [10 ,1  ,3 ,2 ,2 ,3 ,1  ,10 ],
+                [5  ,1  ,2 ,1 ,1 ,2 ,1  ,5  ],
+                [5  ,1  ,2 ,1 ,1 ,2 ,1  ,5  ],
+                [10 ,1  ,3 ,2 ,2 ,3 ,1  ,10 ],
+                [-25,-45,1 ,1 ,1 ,1,-45 ,-25],
+                [500,-25,10,5 ,5 ,10,-25,500]]
+    elif game_phase < 0.7:
+        return [[500, -25, 10, 5, 5, 10, -25, 500],
+                [-25, -45, 1, 1, 1, 1, -45, -25],
+                [10, 1, 3, 2, 2, 3, 1, 10],
+                [5, 1, 2, 1, 1, 2, 1, 5],
+                [5, 1, 2, 1, 1, 2, 1, 5],
+                [10, 1, 3, 2, 2, 3, 1, 10],
+                [-25, -45, 1, 1, 1, 1, -45, -25],
+                [500, -25, 10, 5, 5, 10, -25, 500]]
 
 def evaluate_game_state(game):
     """
@@ -201,7 +207,13 @@ def evaluate_game_state(game):
     stability = calculate_stability(game)
 
     # Positional_score
-    positional_score=0 #TODO:遍历棋盘
+    positional_score = 0
+    for i in range(8):
+        for j in range(8):
+            if game.board[i][j]==game.current_player:
+                positional_score+=POSITION_WEIGHTS[i][j]
+            elif game.board[i][j]==game.current_player:
+                positional_score -= POSITION_WEIGHTS[i][j]
 
     # Combine the factors with the corresponding weights to get the final evaluation value
     evaluation = (

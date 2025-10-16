@@ -2,7 +2,8 @@ import pygame
 import sys
 import time
 from othello_game import OthelloGame
-from ai_agent import get_best_move
+from ai_opt import get_best_move
+#from ai_agent import get_best_move
 
 # Constants and colors
 WIDTH, HEIGHT = 480, 560
