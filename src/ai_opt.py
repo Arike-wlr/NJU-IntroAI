@@ -1,7 +1,7 @@
 from othello_game import OthelloGame
 import copy
 
-def get_best_move(game, max_depth=6):
+def get_best_move(game, max_depth=8):
     """
     Given the current game state, this function returns the best move for the AI player using the Alpha-Beta Pruning
     algorithm with a specified maximum search depth.
@@ -14,8 +14,8 @@ def get_best_move(game, max_depth=6):
         tuple: A tuple containing the evaluation value of the best move and the corresponding move (row, col).
     """
     #_, best_move = minmax_decider(game, max_depth)
-    _, best_move = alphabeta_decider(game, max_depth)
-    # _, best_move = mtd_f(game, 0, max_depth)
+    #_, best_move = alphabeta_decider(game, max_depth)
+    _, best_move = mtd_f(game, 0, max_depth)
     return best_move
 
 def minmax_decider(
@@ -208,26 +208,26 @@ def get_dynamic_weights(game):
     total_disks = sum(1 for row in game.board for cell in row if cell != 0)
     game_phase = total_disks / 64  # 0-1, 0=开局, 1=终局
 
-    if game_phase < 0.3:  # 开局
+    if game_phase < 0.3:  # 开局阶段 (0-19子)
         return {
-            'coin_parity': 0.5,  # 开局棋子数量不重要
-            'mobility': 3.0,  # 行动力很重要
-            'stability': 1.0,  # 稳定性不太重要（判断条件也较严格）
-            'positional_score': 2.0 # 重视角落，位置权重中已有体现
+            'coin_parity': 0.1,  # 棋子数量：不重要
+            'mobility': 0.5,  # 行动力：最重要
+            'stability': 0.2,  # 稳定性：次要
+            'positional_score': 0.2  # 位置分数：重要
         }
-    elif game_phase < 0.7:  # 中局
+    elif game_phase < 0.7:  # 中局阶段 (20-44子)
         return {
-            'coin_parity': 1.0, # 提升棋子数量重要性
-            'mobility': 2.0, # 调整行动力重要性
-            'stability': 3.0, #提升稳定性重要性
-            'positional_score': 1.0
+            'coin_parity': 0.25,  # 棋子数量：重要性提升
+            'mobility': 0.3,  # 行动力：仍然重要
+            'stability': 0.3,  # 稳定性：重要性提升
+            'positional_score': 0.15  # 位置分数：重要性降低
         }
-    else:  # 终局
+    else:  # 终局阶段 (45-64子)
         return {
-            'coin_parity': 3.0,  # 棋子数量最重要
-            'mobility': 0.5,  # 行动力不重要
-            'stability': 2.0,
-            'positional_score': 1.0
+            'coin_parity': 0.5,  # 棋子数量：最重要
+            'mobility': 0.1,  # 行动力：不重要
+            'stability': 0.25,  # 稳定性：重要
+            'positional_score': 0.15  # 位置分数：辅助作用
         }
 
 def evaluate_game_state(game):
@@ -244,19 +244,21 @@ def evaluate_game_state(game):
     # Coin parity (difference in disk count)
     player_disk_count = sum(row.count(game.current_player) for row in game.board)
     opponent_disk_count = sum(row.count(-game.current_player) for row in game.board)
-    coin_parity = player_disk_count - opponent_disk_count
+    coin_parity = 100*(player_disk_count - opponent_disk_count)/(player_disk_count + opponent_disk_count)
 
     # Mobility (number of valid moves for the current player)
     player_valid_moves = len(game.get_valid_moves())
-
     temp_game = copy.deepcopy(game)
     temp_game.current_player = -game.current_player
     opponent_valid_moves = len(temp_game.get_valid_moves())
-
-    mobility = player_valid_moves - opponent_valid_moves
+    total_moves = player_valid_moves + opponent_valid_moves
+    if total_moves == 0:
+        mobility = 0
+    else:
+        mobility =100 *( player_valid_moves - opponent_valid_moves)/total_moves
 
     # Stability (number of stable disks)
-    stability = calculate_stability(game)
+    stability =1.5 * calculate_stability(game)
 
     # Positional_score
     positional_score = 0
@@ -264,8 +266,9 @@ def evaluate_game_state(game):
         for j in range(8):
             if game.board[i][j]==game.current_player:
                 positional_score+=POSITION_WEIGHTS[i][j]
-            elif game.board[i][j]==game.current_player:
+            elif game.board[i][j]==-game.current_player:
                 positional_score -= POSITION_WEIGHTS[i][j]
+    positional_score*=100
 
     # Combine the factors with the corresponding weights to get the final evaluation value
     evaluation = (

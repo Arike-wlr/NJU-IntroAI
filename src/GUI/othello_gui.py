@@ -1,9 +1,11 @@
 import pygame
 import sys
 import time
+import  os
+import datetime
 from othello_game import OthelloGame
-from ai_opt import get_best_move
-#from ai_agent import get_best_move
+#from ai_opt import get_best_move
+from ai_agent import get_best_move
 
 # Constants and colors
 WIDTH, HEIGHT = 480, 560
@@ -15,7 +17,7 @@ GREEN_COLOR = (0, 128, 0)
 
 
 class OthelloGUI:
-    def __init__(self, player_mode="friend"):
+    def __init__(self, player_mode="friend",black_ai=None, white_ai=None):
         """
         A graphical user interface (GUI) for playing the Othello game.
 
@@ -27,7 +29,35 @@ class OthelloGUI:
         self.message_font = pygame.font.SysFont(None, 24)
         self.message = ""
         self.invalid_move_message = ""
-        
+        self.black_ai = black_ai
+        self.white_ai = white_ai
+        self.ai_thinking_times = {"black": [], "white": []}  # 记录思考时间
+
+        # 创建截图目录
+        self.screenshot_dir = "screenshots"
+        if not os.path.exists(self.screenshot_dir):
+            os.makedirs(self.screenshot_dir)
+
+    def take_screenshot(self, winner):
+        """截图并保存"""
+
+        if winner == 1:
+            winner_name = "black"
+        elif winner == -1:
+            winner_name = "white"
+        else:
+            winner_name = "tie"
+
+        # 获取AI名称
+        black_ai_name = self.black_ai.__name__ if self.black_ai else "human"
+        white_ai_name = self.white_ai.__name__ if self.white_ai else "human"
+
+        filename = f"{self.screenshot_dir}/othello_{black_ai_name}_vs_{white_ai_name}_{winner_name}.png"
+
+        # 截图
+        pygame.image.save(self.win, filename)
+        print(f"Screenshot saved: {filename}")
+        return filename
 
     def initialize_pygame(self):
         """
@@ -139,6 +169,7 @@ class OthelloGUI:
 
         while not self.game.is_game_over():
             self.handle_input()
+            current_player_color = "black" if self.game.current_player == 1 else "white"
 
             # If it's the AI player's turn
             if self.game.player_mode == "ai" and self.game.current_player == -1:
@@ -158,6 +189,26 @@ class OthelloGUI:
                 if ai_move is not None:
                     self.game.make_move(*ai_move)
 
+            elif self.game.player_mode == "ai_vs_ai":
+                round_count += 1
+                ai_function = self.black_ai if self.game.current_player == 1 else self.white_ai
+
+                if ai_function:
+                    self.message = f"{current_player_color.capitalize()} AI is thinking..."
+                    self.draw_board()
+
+                    start_time = time.time()
+                    ai_move = ai_function(self.game)
+                    end_time = time.time()
+
+                    think_time = end_time - start_time
+                    self.ai_thinking_times[current_player_color].append(think_time)
+                    print(f"Round {round_count}, {current_player_color} AI thinking time: {think_time:.2f}s")
+
+                    pygame.time.delay(300)  # 短暂延迟以便观察
+                    if ai_move is not None:
+                        self.game.make_move(*ai_move)
+
             self.message = ""  # Clear any previous messages
             self.draw_board()
 
@@ -170,7 +221,11 @@ class OthelloGUI:
             self.message = "It's a tie!"
 
         self.draw_board()
-        pygame.time.delay(3000)  # Display the result for 2 seconds before returning
+
+        screenshot_path = self.take_screenshot(winner)
+        print(f"截图已保存至{screenshot_path}")
+
+        pygame.time.delay(5000)
 
         # Call the return_to_menu_callback if provided
         if return_to_menu_callback:

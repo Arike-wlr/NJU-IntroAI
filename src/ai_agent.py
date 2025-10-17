@@ -1,7 +1,7 @@
 from othello_game import OthelloGame
 
 
-def get_best_move(game, max_depth=6):
+def get_best_move(game, max_depth=8):
     """
     Given the current game state, this function returns the best move for the AI player using the Alpha-Beta Pruning
     algorithm with a specified maximum search depth.
@@ -14,8 +14,8 @@ def get_best_move(game, max_depth=6):
         tuple: A tuple containing the evaluation value of the best move and the corresponding move (row, col).
     """
     # _, best_move = minmax_decider(game, max_depth)
-    _, best_move = alphabeta_decider(game, max_depth)
-    # _, best_move = mtd_f(game, 0, max_depth)
+    #_, best_move = alphabeta_decider(game, max_depth)
+    _, best_move = mtd_f(game, 0, max_depth)
     return best_move
 
 

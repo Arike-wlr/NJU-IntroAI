@@ -2,6 +2,8 @@ import pygame
 import sys
 from GUI.othello_gui import OthelloGUI, run_game
 from GUI.button_gui import Button
+import ai_opt
+import ai_agent
 
 # Constants and colors
 WIDTH, HEIGHT = 480, 560
@@ -29,6 +31,7 @@ class Menu:
         self.menu_items = ["Start Game", "Credit", "Exit"]
         self.submenu_items = [
             "Single-player\n(Play with AI)",
+            "AI vs AI",
             "Return to Main Menu",  # Add "Return to Main Menu" option
         ]
         self.return_button = None
@@ -190,6 +193,14 @@ class Menu:
                         if button.check_collision((x, y)):
                             if button.text == "Single-player\n(Play with AI)":
                                 othello_gui = OthelloGUI(player_mode="ai")
+                                # Pass the draw_menu function as a callback to return to the main menu
+                                othello_gui.run_game(
+                                    return_to_menu_callback=self.draw_menu
+                                )
+
+                            elif button.text == "AI vs AI":
+                                othello_gui = OthelloGUI(player_mode="ai_vs_ai",black_ai=ai_opt.get_best_move,  # 黑棋使用算法1
+                white_ai=ai_agent.get_best_move)
                                 # Pass the draw_menu function as a callback to return to the main menu
                                 othello_gui.run_game(
                                     return_to_menu_callback=self.draw_menu
