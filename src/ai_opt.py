@@ -156,27 +156,79 @@ def mtd_f(game, guess, max_depth):
     return g, best_move
 
 def get_position_weights(game):
+    """
+    统一数量级的位置权重表
+    数值范围：[-0.3, 0.6]，确保各维度平衡
+    """
+    total_disks = sum(1 for row in game.board for cell in row if cell != 0)
+    game_phase = total_disks / 64  # 0-1, 0=开局, 1=终局
+
+    if game_phase < 0.3:  # 开局阶段
+        return [
+            # 开局：强调角落，避免C位，控制边界
+            [0.6  , -0.25, 0.15 , 0.08 , 0.08 , 0.15 , -0.25, 0.6  ],
+            [-0.25, -0.3 , -0.08, -0.08, -0.08, -0.08, -0.3 , -0.25],
+            [0.15 , -0.08, 0.05 , 0.02 , 0.02 , 0.05 , -0.08, 0.15 ],
+            [0.08 , -0.08, 0.02 , 0.01 , 0.01 , 0.02 , -0.08, 0.08 ],
+            [0.08 , -0.08, 0.02 , 0.01 , 0.01 , 0.02 , -0.08, 0.08 ],
+            [0.15 , -0.08, 0.05 , 0.02 , 0.02 , 0.05 , -0.08, 0.15 ],
+            [-0.25, -0.3 , -0.08, -0.08, -0.08, -0.08, -0.3 , -0.25],
+            [0.6  , -0.25, 0.15 , 0.08 , 0.08 , 0.15 , -0.25, 0.6  ]
+        ]
+
+    elif game_phase < 0.7:  # 中局阶段
+        return [
+            # 中局：平衡发展，内部位置价值提升
+            [0.5, -0.15, 0.2, 0.12, 0.12, 0.2, -0.15, 0.5],  # 0
+            [-0.15, -0.2, 0.03, 0.02, 0.02, 0.03, -0.2, -0.15],  # 1
+            [0.2, 0.03, 0.1, 0.06, 0.06, 0.1, 0.03, 0.2],  # 2
+            [0.12, 0.02, 0.06, 0.04, 0.04, 0.06, 0.02, 0.12],  # 3
+            [0.12, 0.02, 0.06, 0.04, 0.04, 0.06, 0.02, 0.12],  # 4
+            [0.2, 0.03, 0.1, 0.06, 0.06, 0.1, 0.03, 0.2],  # 5
+            [-0.15, -0.2, 0.03, 0.02, 0.02, 0.03, -0.2, -0.15],  # 6
+            [0.5, -0.15, 0.2, 0.12, 0.12, 0.2, -0.15, 0.5]  # 7
+        ]
+
+    else:  # 终局阶段
+        return [
+            # 终局：所有位置都有正价值，强调棋子数量
+            [0.4, 0.08, 0.25, 0.15, 0.15, 0.25, 0.08, 0.4],  # 0
+            [0.08, 0.05, 0.12, 0.09, 0.09, 0.12, 0.05, 0.08],  # 1
+            [0.25, 0.12, 0.18, 0.14, 0.14, 0.18, 0.12, 0.25],  # 2
+            [0.15, 0.09, 0.14, 0.11, 0.11, 0.14, 0.09, 0.15],  # 3
+            [0.15, 0.09, 0.14, 0.11, 0.11, 0.14, 0.09, 0.15],  # 4
+            [0.25, 0.12, 0.18, 0.14, 0.14, 0.18, 0.12, 0.25],  # 5
+            [0.08, 0.05, 0.12, 0.09, 0.09, 0.12, 0.05, 0.08],  # 6
+            [0.4, 0.08, 0.25, 0.15, 0.15, 0.25, 0.08, 0.4]  # 7
+        ]
+
+
+def get_dynamic_weights(game):
+    """根据游戏阶段动态调整权重"""
     total_disks = sum(1 for row in game.board for cell in row if cell != 0)
     game_phase = total_disks / 64  # 0-1, 0=开局, 1=终局
 
     if game_phase < 0.3:  # 开局
-        return  [[500,-25,10,5 ,5 ,10,-25,500],
-                [-25,-45,1 ,1 ,1 ,1 ,-45,-25],
-                [10 ,1  ,3 ,2 ,2 ,3 ,1  ,10 ],
-                [5  ,1  ,2 ,1 ,1 ,2 ,1  ,5  ],
-                [5  ,1  ,2 ,1 ,1 ,2 ,1  ,5  ],
-                [10 ,1  ,3 ,2 ,2 ,3 ,1  ,10 ],
-                [-25,-45,1 ,1 ,1 ,1,-45 ,-25],
-                [500,-25,10,5 ,5 ,10,-25,500]]
-    elif game_phase < 0.7:
-        return [[500, -25, 10, 5, 5, 10, -25, 500],
-                [-25, -45, 1, 1, 1, 1, -45, -25],
-                [10, 1, 3, 2, 2, 3, 1, 10],
-                [5, 1, 2, 1, 1, 2, 1, 5],
-                [5, 1, 2, 1, 1, 2, 1, 5],
-                [10, 1, 3, 2, 2, 3, 1, 10],
-                [-25, -45, 1, 1, 1, 1, -45, -25],
-                [500, -25, 10, 5, 5, 10, -25, 500]]
+        return {
+            'coin_parity': 0.5,  # 开局棋子数量不重要
+            'mobility': 3.0,  # 行动力很重要
+            'stability': 1.0,  # 稳定性不太重要（判断条件也较严格）
+            'positional_score': 2.0 # 重视角落，位置权重中已有体现
+        }
+    elif game_phase < 0.7:  # 中局
+        return {
+            'coin_parity': 1.0, # 提升棋子数量重要性
+            'mobility': 2.0, # 调整行动力重要性
+            'stability': 3.0, #提升稳定性重要性
+            'positional_score': 1.0
+        }
+    else:  # 终局
+        return {
+            'coin_parity': 3.0,  # 棋子数量最重要
+            'mobility': 0.5,  # 行动力不重要
+            'stability': 2.0,
+            'positional_score': 1.0
+        }
 
 def evaluate_game_state(game):
     """
@@ -225,33 +277,6 @@ def evaluate_game_state(game):
 
     return evaluation
 
-def get_dynamic_weights(game):
-    """根据游戏阶段动态调整权重"""
-    total_disks = sum(1 for row in game.board for cell in row if cell != 0)
-    game_phase = total_disks / 64  # 0-1, 0=开局, 1=终局
-
-    if game_phase < 0.3:  # 开局
-        return {
-            'coin_parity': 0.5,  # 开局棋子数量不重要
-            'mobility': 3.0,  # 行动力很重要
-            'stability': 1.0,  # 稳定性不太重要
-            'positional_score':5.0
-        }
-    elif game_phase < 0.7:  # 中局
-        return {
-            'coin_parity': 1.0,
-            'mobility': 2.0,
-            'stability': 3.0,
-            'positional_score': 1.0
-        }
-    else:  # 终局
-        return {
-            'coin_parity': 3.0,  # 棋子数量最重要
-            'mobility': 0.5,  # 行动力不重要
-            'stability': 2.0,
-            'positional_score': 1.0
-        }
-
 def calculate_stability(game):
     """
     Calculates the stability of the AI player's disks on the board.
@@ -260,69 +285,115 @@ def calculate_stability(game):
     Returns:
         int: The number of stable disks for the AI player.
     """
-    BOARD_SIZE=8
 
-    # 使用集合记录已确认的稳定子
-    confirmed_stable = set()
+    def first_stability(game):
+        def neighbors(row, col):
+            return [
+                (row + dr, col + dc)
+                for dr in [-1, 0, 1]
+                for dc in [-1, 0, 1]
+                if (dr, dc) != (0, 0) and 0 <= row + dr < 8 and 0 <= col + dc < 8
+            ]
 
-    def is_valid_position(row, col):
-        return 0 <= row < BOARD_SIZE and 0 <= col < BOARD_SIZE
-
-    # 初始稳定子：角落棋子
-    corners = [(0, 0), (0, 7), (7, 0), (7, 7)]
-    for r, c in corners:
-        if game.board[r][c] == game.current_player:
-            confirmed_stable.add((r, c))
-
-    def is_stable_in_direction(row, col, dr, dc):
-        """
-        判断棋子在某个方向上是否稳定
-        """
-        # 检查相邻位置
-        r, c = row + dr, col + dc
-
-        # 情况1：紧邻边界 → 稳定
-        if not is_valid_position(r, c):
-            return True
-
-        # 情况2：紧邻已确认的稳定子 → 稳定
-        if (r, c) in confirmed_stable:
-            return True
-
-        # 如果相邻位置是空位或对手棋子，这个方向不稳定
-        if game.board[r][c] != game.current_player:
-            return False
-
-        # 递归检查相邻的同色棋子是否稳定
-        return is_stable_in_direction(r, c, dr, dc)
-
-    def is_fully_stable(row, col):
-        """判断棋子是否在四个方向都稳定"""
-        directions =  [
-            (0, 1), (1, 0), (0, -1), (-1, 0),   # 正交方向
-            (1, 1), (1, -1), (-1, 1), (-1, -1)  # 对角线方向
+        corners = [(0, 0), (0, 7), (7, 0), (7, 7)]
+        edges = [(i, j) for i in [0, 7] for j in range(1, 7)] + [
+            (i, j) for i in range(1, 7) for j in [0, 7]
         ]
+        inner_region = [(i, j) for i in range(2, 6) for j in range(2, 6)]
+        regions = [corners, edges, inner_region]
+        # 定义棋盘区域。
+        stable_count = 0
 
-        # 计算稳定方向的数量
-        stable_directions = 0
-        for dr, dc in directions:
-            if is_stable_in_direction(row, col, dr, dc):
-                stable_directions += 1
+        def is_stable_disk(row, col):
+            return (
+                    all(game.board[r][c] == game.current_player for r, c in neighbors(row, col))
+                    or (row, col) in edges + corners
+            )
 
-        # 放宽条件：多数方向稳定即可认为是稳定子
-        return stable_directions >= 6  # 可以根据需要调整阈值
+        for region in regions:
+            for row, col in region:
+                if game.board[row][col] == game.current_player and is_stable_disk(row, col):
+                    stable_count += 1
 
-    # 稳定性传播：从已确认的稳定子开始，寻找新的稳定子
-    changed = True
-    while changed:
-        changed = False
-        for r in range(BOARD_SIZE):
-            for c in range(BOARD_SIZE):
-                if (r, c) in confirmed_stable:
-                    continue  # 已经是稳定子，跳过
-                if game.board[r][c] == game.current_player:
-                    if is_fully_stable(r, c):
-                        confirmed_stable.add((r, c))
-                        changed = True
+        return stable_count
 
-    return len(confirmed_stable)
+    def second_stability(game):
+
+        BOARD_SIZE = 8
+
+        # 使用集合记录已确认的稳定子
+        confirmed_stable = set()
+
+        def is_valid_position(row, col):
+            return 0 <= row < BOARD_SIZE and 0 <= col < BOARD_SIZE
+
+        # 初始稳定子：角落棋子
+        corners = [(0, 0), (0, 7), (7, 0), (7, 7)]
+        for r, c in corners:
+            if game.board[r][c] == game.current_player:
+                confirmed_stable.add((r, c))
+
+        def is_stable_in_direction(row, col, dr, dc):
+            """
+            判断棋子在某个方向上是否稳定
+            """
+            # 检查相邻位置
+            r, c = row + dr, col + dc
+
+            # 情况1：紧邻边界 → 稳定
+            if not is_valid_position(r, c):
+                return True
+
+            # 情况2：紧邻已确认的稳定子 → 稳定
+            if (r, c) in confirmed_stable:
+                return True
+
+            # 情况3：沿着方向检查是否完全被占据且没有空位
+            current_r, current_c = r, c
+            while is_valid_position(current_r, current_c):
+                if game.board[current_r][current_c] == 0:  # 发现空位
+                    return False
+                current_r += dr
+                current_c += dc
+
+            # 情况4：走到边界都没有空位 → 稳定
+            return True
+
+        def is_fully_stable(row, col):
+            """判断棋子是否在四个方向都稳定"""
+            directions = [
+                (0, 1), (1, 0), (0, -1), (-1, 0),  # 正交方向
+                (1, 1), (1, -1), (-1, 1), (-1, -1)  # 对角线方向
+            ]
+
+            # 计算稳定方向的数量
+            stable_directions = 0
+            for dr, dc in directions:
+                if is_stable_in_direction(row, col, dr, dc):
+                    stable_directions += 1
+
+            # 放宽条件：多数方向稳定即可认为是稳定子
+            return stable_directions >= 4  # 可以根据需要调整阈值
+
+        # 稳定性传播：从已确认的稳定子开始，寻找新的稳定子
+        changed = True
+        while changed:
+            changed = False
+            for r in range(BOARD_SIZE):
+                for c in range(BOARD_SIZE):
+                    if (r, c) in confirmed_stable:
+                        continue  # 已经是稳定子，跳过
+                    if game.board[r][c] == game.current_player:
+                        if is_fully_stable(r, c):
+                            confirmed_stable.add((r, c))
+                            changed = True
+
+        return len(confirmed_stable)
+
+    total_disks = sum(1 for row in game.board for cell in row if cell != 0)
+    game_phase = total_disks / 64  # 0-1, 0=开局, 1=终局
+
+    if game_phase < 0.5:  # 开局
+        return first_stability(game)
+    else:
+        return second_stability(game)
