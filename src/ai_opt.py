@@ -1,7 +1,7 @@
 from othello_game import OthelloGame
 import copy
 
-def get_best_move(game, max_depth=8):
+def get_best_move(game, max_depth=7):
     """
     Given the current game state, this function returns the best move for the AI player using the Alpha-Beta Pruning
     algorithm with a specified maximum search depth.
@@ -337,36 +337,34 @@ def calculate_stability(game):
                 confirmed_stable.add((r, c))
 
         def is_stable_in_direction(row, col, dr, dc):
-            """
-            判断棋子在某个方向上是否稳定
-            """
-            # 检查相邻位置
-            r, c = row + dr, col + dc
+            """检查单个方向是否不可翻转"""
+            # 正向检查
+            r1, c1 = row + dr, col + dc
+            # 反向检查
+            r2, c2 = row - dr, col - dc
 
-            # 情况1：紧邻边界 → 稳定
-            if not is_valid_position(r, c):
-                return True
+            # 条件1：正向接边界或己方稳定子
+            forward_stable = (not is_valid_position(r1, c1) or
+                              (r1, c1) in confirmed_stable)
 
-            # 情况2：紧邻已确认的稳定子 → 稳定
-            if (r, c) in confirmed_stable:
-                return True
+            # 条件2：反向接边界或己方稳定子
+            backward_stable = (not is_valid_position(r2, c2) or
+                               (r2, c2) in confirmed_stable)
 
-            # 情况3：沿着方向检查是否完全被占据且没有空位
-            current_r, current_c = r, c
-            while is_valid_position(current_r, current_c):
-                if game.board[current_r][current_c] == 0:  # 发现空位
-                    return False
-                current_r += dr
-                current_c += dc
+            # 条件3：两边都接对方稳定子
+            both_opponent_stable = (
+                    is_valid_position(r1, c1) and is_valid_position(r2, c2) and
+                    game.board[r1][c1] ==-game.current_player and game.board[r2][c2] ==-game.current_player and
+                    (r1, c1) in confirmed_stable and (r2, c2) in confirmed_stable
+            )
 
-            # 情况4：走到边界都没有空位 → 稳定
-            return True
+            return forward_stable or backward_stable or both_opponent_stable
 
         def is_fully_stable(row, col):
-            """判断棋子是否在四个方向都稳定"""
+            """四个方向都不可翻转"""
             directions = [
                 (0, 1), (1, 0), (0, -1), (-1, 0),  # 正交方向
-                (1, 1), (1, -1), (-1, 1), (-1, -1)  # 对角线方向
+                (1, 1), (1, -1), (-1, 1), (-1, -1) # 对角线方向
             ]
 
             # 计算稳定方向的数量
@@ -378,7 +376,7 @@ def calculate_stability(game):
             # 放宽条件：多数方向稳定即可认为是稳定子
             return stable_directions >= 4  # 可以根据需要调整阈值
 
-        # 稳定性传播：从已确认的稳定子开始，寻找新的稳定子
+            # 稳定性传播：从已确认的稳定子开始，寻找新的稳定子
         changed = True
         while changed:
             changed = False

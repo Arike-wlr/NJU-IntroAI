@@ -1,7 +1,7 @@
 from othello_game import OthelloGame
 
 
-def get_best_move(game, max_depth=8):
+def get_best_move(game, max_depth=7):
     """
     Given the current game state, this function returns the best move for the AI player using the Alpha-Beta Pruning
     algorithm with a specified maximum search depth.
