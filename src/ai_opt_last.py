@@ -213,26 +213,26 @@ def get_dynamic_weights(game):
     total_disks = sum(1 for row in game.board for cell in row if cell != 0)
     game_phase = total_disks / 64  # 0-1, 0=开局, 1=终局
 
-    if game_phase < 0.3:  # 开局阶段 (0-19子) - 后手关键期
+    if game_phase < 0.3:  # 开局阶段 (0-19子)
         return {
-            'coin_parity': 0.05,  # 棋子数量：更不重要（避免早期贪子）
-            'mobility': 0.6,      # 行动力：极度重要（保持灵活性）
-            'stability': 0.15,    # 稳定性：次要（避免过早固定）
-            'positional_score': 0.2   # 位置分数：重要但不过度
+            'coin_parity': 0.08,  # 略微提升棋子数量权重，避免过度悲观
+            'mobility': 0.55,  # 行动力重要但不过度，避免短视
+            'stability': 0.18,  # 稳定性适当提升，建立信心
+            'positional_score': 0.19  # 位置分数保持平衡
         }
-    elif game_phase < 0.7:  # 中局阶段 (20-44子) - 后手追赶期
+    elif game_phase < 0.7:  # 中局阶段 (20-44子)
         return {
-            'coin_parity': 0.2,   # 棋子数量：适度重视
-            'mobility': 0.35,     # 行动力：仍然很重要
-            'stability': 0.25,    # 稳定性：开始建立稳定区域
-            'positional_score': 0.2   # 位置分数：适度重视反击位置
+            'coin_parity': 0.22,  # 平稳过渡，避免激进
+            'mobility': 0.32,  # 行动力适度，注重质量而非数量
+            'stability': 0.28,  # 稳定性提升，建立长期优势
+            'positional_score': 0.18  # 位置分数稳定
         }
-    else:  # 终局阶段 (45-64子) - 后手决战期
+    else:  # 终局阶段 (45-64子)
         return {
-            'coin_parity': 0.45,  # 棋子数量：最重要但略低于先手
-            'mobility': 0.15,     # 行动力：保持一定重视度
-            'stability': 0.25,    # 稳定性：重要
-            'positional_score': 0.15  # 位置分数：辅助作用
+            'coin_parity': 0.42,  # 略微保守，避免终局冒险
+            'mobility': 0.18,  # 保持一定行动力权重
+            'stability': 0.27,  # 稳定性重要但不过度
+            'positional_score': 0.13  # 位置分数辅助
         }
 
 
