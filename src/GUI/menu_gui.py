@@ -4,6 +4,7 @@ from GUI.othello_gui import OthelloGUI, run_game
 from GUI.button_gui import Button
 import ai_opt
 import ai_agent
+import ai_opt_last
 
 # Constants and colors
 WIDTH, HEIGHT = 480, 560
@@ -199,7 +200,7 @@ class Menu:
                                 )
 
                             elif button.text == "AI vs AI":
-                                othello_gui = OthelloGUI(player_mode="ai_vs_ai",black_ai=ai_agent.get_best_move,white_ai=ai_opt.get_best_move)
+                                othello_gui = OthelloGUI(player_mode="ai_vs_ai",black_ai=ai_agent.get_best_move,white_ai=ai_opt_last.get_best_move)
                                 # Pass the draw_menu function as a callback to return to the main menu
                                 othello_gui.run_game(
                                     return_to_menu_callback=self.draw_menu
