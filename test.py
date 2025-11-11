@@ -15,7 +15,7 @@ def main():
     env = AliensEnvPygame(level=0, render=False)
 
     # 加载模型
-    model_path = 'logs\game_records_lvl0_2024-xx-xx_xx-xx-xx\gameplay_model.pkl' # 替换为你的模型的路径
+    model_path = 'models/xg_lvl0/gameplay_model.pkl' # 替换为你的模型的路径
     with open(model_path, 'rb') as f:
         clf = pickle.load(f)
 

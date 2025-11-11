@@ -8,6 +8,7 @@ from env import AliensEnv
 class AliensEnvPygame(AliensEnv):
     def __init__(self, level=0, render=False):
         super().__init__(level=level, render=render)
+        self.level=level
         self.frames = []
         self.log_folder = f'logs/game_records_lvl{level}_{self.timing}'
         os.makedirs(self.log_folder, exist_ok=True)
