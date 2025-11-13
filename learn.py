@@ -10,9 +10,6 @@ from xgboost import XGBClassifier
 from play import AliensEnvPygame
 
 def extract_features(observation):
-
-    # TODO
-
     grid = observation
     features = []
 
@@ -28,11 +25,14 @@ def extract_features(observation):
             'sam': 7,
             'base': 8
         }
-        feature_vector = [0] * len(object_mapping)
+        feature_vector = [0] * len(object_mapping) # 每个单元格用9维向量表示，对应9种游戏对象的存在情况
         for obj in cell:
             index = object_mapping.get(obj, -1)
             if index >= 0:
-                feature_vector[index] = 1
+                if obj =='bomb':
+                    feature_vector[index] = 10 # 提高炸弹的权重
+                else:
+                    feature_vector[index] = 1
         return feature_vector
 
     for row in grid:
