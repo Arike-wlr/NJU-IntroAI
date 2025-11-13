@@ -25,12 +25,14 @@ def extract_features(observation):
             'sam': 7,
             'base': 8
         }
+        # 感觉维度太大了！有些元素存在与否没必要啊！而且有些更重要的维度没出现！不能硬加。。。
+        #重写吧哈哈哈
         feature_vector = [0] * len(object_mapping) # 每个单元格用9维向量表示，对应9种游戏对象的存在情况
         for obj in cell:
             index = object_mapping.get(obj, -1)
             if index >= 0:
                 if obj =='bomb':
-                    feature_vector[index] = 10 # 提高炸弹的权重
+                    feature_vector[index] = 10 # 提高炸弹的权重？
                 else:
                     feature_vector[index] = 1
         return feature_vector
@@ -38,7 +40,7 @@ def extract_features(observation):
     for row in grid:
         for cell in row:
             cell_feature = cell_to_feature(cell)
-            features.extend(cell_feature)
+            features.extend(cell_feature) # 一共有格子数量那么多的向量？
 
     return np.array(features)
 
@@ -61,7 +63,7 @@ def main():
     y = []
     for observation, action in data:
         features = extract_features(observation)
-        X.append(features)
+        X.append(features) # 每个特征向量维度：网格行数 × 网格列数 × 9
         y.append(action)
 
     X = np.array(X)
