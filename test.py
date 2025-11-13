@@ -1,21 +1,27 @@
+import os
 import sys
 import pygame
 import pickle
-from sklearn.ensemble import RandomForestClassifier
-
+import argparse
 from play import AliensEnvPygame
 from learn import extract_features
 
 def main():
-
-    clf = RandomForestClassifier(n_estimators=100)
-
     pygame.init()
-
     env = AliensEnvPygame(level=0, render=False)
 
+    #解析参数
+    parser = argparse.ArgumentParser(description="Aliens 游戏，请选择测试模型")
+    parser.add_argument(
+        "--model",
+        choices=["rf", "svc", "mlp", "xg"],
+        required=True,
+        help="测试模型:rf--随机森林；svc--支持向量机；mlp--多层感知器；xg--梯度提升。"
+    )
+    args = parser.parse_args()
+
     # 加载模型
-    model_path = 'models/xg_lvl0/gameplay_model.pkl' # 替换为你的模型的路径
+    model_path = f'models/{args.model}_lvl0/gameplay_model.pkl' # 替换为你的模型的路径
     with open(model_path, 'rb') as f:
         clf = pickle.load(f)
 
@@ -44,6 +50,8 @@ def main():
         features = features.reshape(1, -1)
 
         action = clf.predict(features)[0]
+        if args.model=='xg':
+            action+=1
 
         observation, reward, game_over, info = env.step(action)
         total_score += reward
@@ -65,8 +73,8 @@ def main():
             done = True
 
         pygame.time.delay(100)
-
-    env.save_gif(filename=f'replay_ai.gif')
+    os.makedirs(f'logs/{args.model}_records_lvl{env.level}_{env.timing}',exist_ok=True)
+    env.save_gif(path= f'logs/{args.model}_records_lvl{env.level}_{env.timing}',filename=f'replay_ai.gif')
 
     pygame.quit()
     sys.exit()

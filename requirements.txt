@@ -2,3 +2,7 @@ imageio
 pillow
 pygame
 scikit-learn
+numpy
+pandas
+matplotlib
+seaborn

@@ -105,12 +105,12 @@ def main():
         clf.fit(X, y_mapped)
         return clf
 
-    parser = argparse.ArgumentParser(description="Bait 游戏，请选择执行模式")
+    parser = argparse.ArgumentParser(description="Aliens 游戏，请选择训练模式")
     parser.add_argument(
         "--method",
         choices=["rf", "svc", "mlp", "xg"],
         required=True,
-        help="运行模式:rf--随机森林；svc--支持向量机；mlp--多层感知器；xg--梯度提升。"
+        help="训练模式:rf--随机森林；svc--支持向量机；mlp--多层感知器；xg--梯度提升。"
     )
     args = parser.parse_args()
 

@@ -43,9 +43,9 @@ class AliensEnvPygame(AliensEnv):
         self.frames.append(grid_image.copy())
         return grid_image
 
-    def save_gif(self, filename='replay.gif', duration=0.1):
+    def save_gif(self,path, filename='replay.gif', duration=0.1):
         frames = [frame.convert('P', palette=Image.ADAPTIVE) for frame in self.frames]
-        frames[0].save(os.path.join(self.log_folder, filename),
+        frames[0].save(os.path.join(path, filename),
                        save_all=True,
                        append_images=frames[1:],
                        duration=duration * 1000,
@@ -124,7 +124,7 @@ def main():
     with open(f'{env.log_folder}/data.pkl', 'wb') as f:
         pickle.dump(data, f)
 
-    env.save_gif()
+    env.save_gif(env.log_folder)
 
     pygame.quit()
     sys.exit()
