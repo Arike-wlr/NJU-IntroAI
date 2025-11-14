@@ -9,22 +9,42 @@ from xgboost import XGBClassifier
 from play import AliensEnvPygame
 
 def extract_features(observation):
-    grid = observation
-    features = []
-    avatar_
+    def get_basic_info():
+        env=AliensEnvPygame()
+        return env.height,env.width,env.portal_pos[1]
+
+    height,width,portal=get_basic_info()
 
     def extract_alien():
-        # 根据parameter.py中的输出，界面宽为32,Aliens行索引为2
-        # 该数据适用于该游戏每一集
-        nonlocal observation
-        alien_vector = [0] * 32
+        alien_vector = [0] * width
         for i in range(0,32):
-            if 'alien' in observation[2][i]:
-                alien_vector[i] = 1
-        return alien_vector
+            if 'alien' in observation[portal][i]:
+                alien_vector[i] = 5
+        return np.array(alien_vector).flatten()
 
+    def extract_bomb():
+        bomb_vector = [0]*height*3
+        return np.array(bomb_vector).flatten()
 
-    return np.array(features)
+    def extract_avatar():
+        avatar_vector=[0]*width
+        return np.array(avatar_vector).flatten()
+
+    def extract_base():
+        base_vector =[0]
+        return np.array(base_vector).flatten()
+
+    def extract_wall():
+        return [0,0]
+
+    features = np.concatenate([
+        extract_alien(),
+        extract_avatar(),
+        extract_bomb(),
+        extract_base(),
+        extract_wall()
+    ])
+    return features
 
 def main():
     data_list = [

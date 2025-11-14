@@ -6,12 +6,13 @@ import pickle
 from env import AliensEnv
 
 class AliensEnvPygame(AliensEnv):
-    def __init__(self, level=0, render=False):
+    def __init__(self, level=0, render=False,make_dirs=True):
         super().__init__(level=level, render=render)
         self.level=level
         self.frames = []
         self.log_folder = f'logs/game_records_lvl{level}_{self.timing}'
-        os.makedirs(self.log_folder, exist_ok=True)
+        if make_dirs:
+            os.makedirs(self.log_folder, exist_ok=True)
 
     def do_render(self):
         image_cache = {}

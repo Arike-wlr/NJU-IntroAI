@@ -119,6 +119,7 @@ class AliensEnv:
         self.height = len(self.map)
         self.width = len(self.map[0])
         self.grid = [[[] for _ in range(self.width)] for _ in range(self.height)]
+        self.portal_pos = None
         self.avatar_pos = None
         self.current_step = 0
         self.done = False
@@ -140,9 +141,11 @@ class AliensEnv:
                 if 'portalSlow' in cell:
                     self.portal_cooldowns[(x, y)] = 16
                     self.portal_totals[(x, y)] = 20
+                    self.portal_pos = (x,y)
                 elif 'portalFast' in cell:
                     self.portal_cooldowns[(x, y)] = 12
                     self.portal_totals[(x, y)] = 20
+                    self.portal_pos = (x,y)
         self.aliens = []
         self.alien_directions = {}
         self.alien_cooldowns = {}
