@@ -6,13 +6,24 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
 from sklearn.neural_network import MLPClassifier
 from xgboost import XGBClassifier
-
 from play import AliensEnvPygame
 
 def extract_features(observation):
     grid = observation
     features = []
-    #TODO：features
+    avatar_
+
+    def extract_alien():
+        # 根据parameter.py中的输出，界面宽为32,Aliens行索引为2
+        # 该数据适用于该游戏每一集
+        nonlocal observation
+        alien_vector = [0] * 32
+        for i in range(0,32):
+            if 'alien' in observation[2][i]:
+                alien_vector[i] = 1
+        return alien_vector
+
+
     return np.array(features)
 
 def main():
