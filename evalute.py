@@ -173,10 +173,14 @@ if __name__ == "__main__":
     model_names = ['rf', 'svc', 'mlp', 'xg']
     models = load_models(model_names)
     data_list=[
-        'game_records_lvl1_2025-11-03_23-18-13',
-        'game_records_lvl1_2025-11-04_12-56-23',
-        'game_records_lvl1_2025-11-05_09-17-22',
-        'game_records_lvl1_2025-11-05_09-20-39'
+        'game_records_lvl2_2025-11-03_23-21-37',
+        'game_records_lvl2_2025-11-05_09-24-35',
+        'game_records_lvl2_2025-11-05_09-22-46',
+        'game_records_lvl2_2025-11-05_11-21-10',
+        'game_records_lvl3_2025-11-05_09-27-58',
+        'game_records_lvl3_2025-11-05_11-31-51',
+        'game_records_lvl4_2025-11-05_09-34-15',
+        'game_records_lvl4_2025-11-05_09-43-46'
     ]
     data = []
     for data_load in data_list:

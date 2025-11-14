@@ -12,36 +12,7 @@ from play import AliensEnvPygame
 def extract_features(observation):
     grid = observation
     features = []
-
-    def cell_to_feature(cell):
-        object_mapping = {
-            'floor': 0,
-            'wall': 1,
-            'avatar': 2,
-            'alien': 3,
-            'bomb': 4,
-            'portalSlow': 5,
-            'portalFast': 6,
-            'sam': 7,
-            'base': 8
-        }
-        # 感觉维度太大了！有些元素存在与否没必要啊！而且有些更重要的维度没出现！不能硬加。。。
-        #重写吧哈哈哈
-        feature_vector = [0] * len(object_mapping) # 每个单元格用9维向量表示，对应9种游戏对象的存在情况
-        for obj in cell:
-            index = object_mapping.get(obj, -1)
-            if index >= 0:
-                if obj =='bomb':
-                    feature_vector[index] = 10 # 提高炸弹的权重？
-                else:
-                    feature_vector[index] = 1
-        return feature_vector
-
-    for row in grid:
-        for cell in row:
-            cell_feature = cell_to_feature(cell)
-            features.extend(cell_feature) # 一共有格子数量那么多的向量？
-
+    #TODO：features
     return np.array(features)
 
 def main():
