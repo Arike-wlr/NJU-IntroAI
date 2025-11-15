@@ -9,20 +9,20 @@ class AliensEnv:
         self.render = render
         self.level2map = {
             0: [
-                'wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww',
-                'w                              w',
-                'w1                             w',
-                'w000                           w',
-                'w000                           w',
-                'w                              w',
-                'w                              w',
-                'w                              w',
-                'w                              w',
-                'w    000      000000     000   w',
-                'w   00000    00000000   00000  w',
-                'w   0   0    00    00   00000  w',
-                'w                A             w',
-                'wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww',
+                'wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww', # 0
+                'w                              w', # 1
+                'w1                             w', # 2
+                'w000                           w', # 3
+                'w000                           w', # 4
+                'w                              w', # 5
+                'w                              w', # 6
+                'w                              w', # 7
+                'w                              w', # 8
+                'w    000      000000     000   w', # 9
+                'w   00000    00000000   00000  w', # 10
+                'w   0   0    00    00   00000  w', # 11
+                'w                A             w', # 12
+                'wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww', # 13
             ],
             1: [
                 'wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww',
