@@ -10,18 +10,15 @@ from play import AliensEnvPygame
 
 def extract_features(observation):
     def get_basic_info():
-        env=AliensEnvPygame()
+        env=AliensEnvPygame(make_dirs=False)
         return env.height,env.width,env.portal_pos[1],env.avatar_pos[0],env.avatar_pos[1]
-
     height,width,portal,avatar_x,avatar_y=get_basic_info()
-
     def extract_alien():
         alien_vector = [0] * width
         for i in range(width):
             if 'alien' in observation[portal][i]:
                 alien_vector[i] = 5
         return np.array(alien_vector).flatten()
-
     def extract_bomb():
         bomb_vector = [0]*height*3
         for h in range(height):
@@ -29,12 +26,10 @@ def extract_features(observation):
                 if "bomb" in observation[h][avatar_x + w ]:
                     bomb_vector[3 *h+1+w]=100
         return np.array(bomb_vector).flatten()
-
     def extract_avatar():
         avatar_vector=[0]*width
         avatar_vector[avatar_x]=3
         return np.array(avatar_vector).flatten()
-
     def extract_base():
         base_vector =[0]*(avatar_y-portal-1)*3 # avatar_y - portal-1 = 12 - 2 - 1 = 9
         for h in range (portal+1,avatar_y): # ( 3 , 12 )
@@ -42,14 +37,12 @@ def extract_features(observation):
                 if 'base' in observation[h][avatar_x + w]:
                     base_vector[3 * (h-portal-1) + 1 + w] = 1
         return np.array(base_vector).flatten()
-
     def extract_wall():
         if 'wall' in observation[avatar_y][avatar_x - 1]:
             return [1,0]
         elif 'wall' in observation [avatar_y][avatar_x+1]:
             return [0,1]
         return [0,0]
-
     features = np.concatenate([
         extract_alien(),
         extract_avatar(),
