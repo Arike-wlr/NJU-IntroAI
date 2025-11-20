@@ -16,23 +16,27 @@ class DQNAgent:
 
         self.qnetwork_local = QNetwork(state_dim, action_dim, seed).to(device)
         self.qnetwork_target = QNetwork(state_dim, action_dim, seed).to(device)
-        self.optimizer = optim.Adam(self.qnetwork_local.parameters(), lr)
+        self.optimizer = optim.Adam(self.qnetwork_local.parameters(), lr) #使用lr
 
         self.t_step = 0
 
     # Choose an action based on the current state
     def act(self, state, eps=0.):
         state_tensor = torch.from_numpy(state).float().unsqueeze(0).to(self.device)
-        
+        # 将numpy数组的state转换为PyTorch tensor，并添加batch维度
         self.qnetwork_local.eval()
+        # 将网络设置为评估模式（关闭dropout等训练专用层）
         with torch.no_grad():
             action_values = self.qnetwork_local(state_tensor)
+        # 禁用梯度计算，提高效率，使用本地Q网络计算当前状态下所有动作的Q值
         self.qnetwork_local.train()
+        # 恢复训练模式
 
         if np.random.random() > eps:
             return action_values.argmax(dim=1).item()
         else:
             return np.random.randint(self.action_dim)
+        # ε-贪婪策略：以eps概率随机探索，以(1-eps)概率选择最优动作
 
     def act_no_explore(self, state, eps=0.):
         state_tensor = torch.from_numpy(state).float().unsqueeze(0).to(self.device)
@@ -41,7 +45,7 @@ class DQNAgent:
         with torch.no_grad():
             action_values = self.qnetwork_local(state_tensor)
         self.qnetwork_local.train()
-
+        # 关键区别：总是选择Q值最大的动作，不进行随机探索
         return action_values.argmax(dim=1).item()
 
     # Learn from batch of experiences
@@ -56,7 +60,7 @@ class DQNAgent:
 
         Q_targets_next = self.qnetwork_target(next_states).detach().max(1)[0].unsqueeze(1)
         Q_targets = rewards + (gamma * Q_targets_next * (1 - dones))
-
+        # 这里用到了gamma
         Q_expected = self.qnetwork_local(states).gather(1, actions)
 
         loss = F.mse_loss(Q_expected, Q_targets)
