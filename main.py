@@ -3,7 +3,8 @@ from collections import deque
 import random
 import argparse
 import torch
-
+import matplotlib.pyplot as plt
+from datetime import datetime
 from agent import DQNAgent, DDQNAgent
 
 def parser():
@@ -19,6 +20,7 @@ def parser():
     parser.add_argument("--buffer_size", type=int, default=10000)
     parser.add_argument("--batch_size", type=int, default=256)
     parser.add_argument("--update_frequency", type=int, default=10)
+    parser.add_argument("--save_plots",action="store_true", default=True, help="是否保存图像")
 
     args = parser.parse_args()
     return args
@@ -38,6 +40,9 @@ def eval_policy(agent):
 
 
 def train(args, agent, buffer):
+    episodes = []
+    epi_loss = []
+    eval_returns = []  # 记录评估时的return
     # Training loop
     for episode in range(args.num_episodes):
         # Reset the environment
@@ -66,10 +71,48 @@ def train(args, agent, buffer):
             # Check if the episode has ended
             if done:
                 break
+        episodes.append(episode+1)
         loss = torch.mean(torch.tensor(losses))
+        epi_loss.append(loss)
         eval_return = eval_policy(agent)
+        eval_returns.append(eval_return)
 
         print(f"Episode {episode + 1} Step {step + 1}: Training Loss {loss}, Return {eval_return}")
+    plot_training_progress(episodes, losses, eval_returns, args)
+
+def plot_training_progress(episodes, losses, eval_returns, args):
+    """绘制训练进度图像"""
+    # 创建图像
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 10))
+
+    # 绘制回报曲线
+    ax1.plot(episodes, eval_returns, 'b-', alpha=0.6, label='Evaluation Return')
+    ax1.set_xlabel('Episode')
+    ax1.set_ylabel('Return')
+    ax1.set_title(f'{args.agent_name.upper()} - Evaluation Returns')
+    ax1.legend()
+    ax1.grid(True, alpha=0.3)
+
+    # 绘制损失曲线
+    if losses and len(losses) > 0:
+        # 确保losses是纯Python数值列表
+        losses_clean = [float(loss) for loss in losses]
+        ax2.plot(episodes[:len(losses_clean)], losses_clean, 'g-', alpha=0.7)
+        ax2.set_xlabel('Episode')
+        ax2.set_ylabel('Loss')
+        ax2.set_title(f'{args.agent_name.upper()} - Training Loss')
+        ax2.grid(True, alpha=0.3)
+
+    plt.tight_layout()
+
+    # 保存图像
+    if args.save_plots:
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        plot_filename = f"{args.agent_name}_training_progress_{timestamp}.png"
+        plt.savefig(plot_filename, dpi=300, bbox_inches='tight')
+        print(f"训练图像已保存为: {plot_filename}")
+
+    plt.show()
 
 if __name__ == "__main__":
     args = parser()
