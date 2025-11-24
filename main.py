@@ -5,6 +5,8 @@ import argparse
 import torch
 import matplotlib.pyplot as plt
 from datetime import datetime
+import os
+import json
 from agent import DQNAgent, DDQNAgent
 
 def parser():
@@ -114,7 +116,39 @@ def plot_training_progress(episodes, losses, eval_returns, args):
 
     plt.show()
 
+def load_optimized_params(agent_name='dqn'):
+    """加载优化后的参数"""
+    param_file = f"best_params_{agent_name}.json"
+    if os.path.exists(param_file):
+        with open(param_file, 'r') as f:
+            return json.load(f)
+    else:
+        print(f"警告: 未找到优化参数文件 {param_file}，使用默认参数")
+        return None
+
 if __name__ == "__main__":
+    best_params = load_optimized_params()
+
+    if best_params is None:
+        # 如果没有找到最佳参数文件，使用默认参数
+        args = parser()
+    else:
+        # 使用最佳参数
+        args = argparse.Namespace()
+        args.agent_name = "dqn"
+        args.num_episodes = 1000  # 最终训练可以用更多episode
+        args.max_steps_per_episode = 500
+        args.epsilon_start = best_params["epsilon_start"]
+        args.epsilon_end = best_params["epsilon_end"]
+        args.epsilon_decay_rate = best_params["epsilon_decay_rate"]
+        args.gamma = best_params["gamma"]
+        args.lr = best_params["lr"]
+        args.buffer_size = best_params["buffer_size"]
+        args.batch_size = best_params["batch_size"]
+        args.update_frequency = best_params["update_frequency"]
+
+    print("Using parameters:", vars(args))
+
     args = parser()
     # Set up the environment
     env = gym.make("CartPole-v1")
@@ -130,4 +164,6 @@ if __name__ == "__main__":
         agent = DDQNAgent(input_dim, output_dim, buffer_size=args.buffer_size, seed=1234, lr = args.lr)
     else:
         assert False, "Not Implement agent!"
+
     train(args, agent, buffer)
+    env.close()
