@@ -136,7 +136,7 @@ if __name__ == "__main__":
         # 使用最佳参数
         args = argparse.Namespace()
         args.agent_name = "dqn"
-        args.num_episodes = 1000  # 最终训练可以用更多episode
+        args.num_episodes = 600  # 最终训练可以用更多episode
         args.max_steps_per_episode = 500
         args.epsilon_start = best_params["epsilon_start"]
         args.epsilon_end = best_params["epsilon_end"]
