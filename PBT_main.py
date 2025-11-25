@@ -30,15 +30,15 @@ class PBTTrainer:
             agent_config = {
                 # 学习相关参数
                 'lr': 10 ** np.random.uniform(-5, -3),  # 10^-5 到 10^-3
-                'gamma': np.random.uniform(0.9, 0.999),
+                'gamma': np.random.uniform(0.9, 0.99),
                 # 探索相关参数
-                'epsilon_start': np.random.uniform(0.8, 1.0),
-                'epsilon_end': np.random.uniform(0.01, 0.1),
+                'epsilon_start': np.random.uniform(0.85, 0.95),
+                'epsilon_end': np.random.uniform(0.05, 0.1),
                 'epsilon_decay_rate': np.random.uniform(0.98, 0.999),
                 # 经验回放参数
-                'buffer_size': int(np.random.choice([5000, 10000, 20000, 50000])),
-                'batch_size': 2 ** np.random.randint(5, 10),  # 32 到 512
-                'update_frequency': int(np.random.choice([1, 4, 10, 20])),
+                'buffer_size': int(np.random.choice([10000, 50000, 100000])),
+                'batch_size': 2 ** np.random.randint(5, 9),  # 32 到 512
+                'update_frequency': int(np.random.choice([1, 4])),
                 'agent_id': i
             }
             self.agents.append(agent_config)
@@ -86,39 +86,37 @@ class PBTTrainer:
                     # 探索策略参数
                     self.agents[i]['epsilon_start'] = np.clip(
                         self.agents[i]['epsilon_start'] * np.random.uniform(0.95, 1.05),
-                        0.5, 1.0
+                        0.85, 0.95
                     )
                     self.agents[i]['epsilon_end'] = np.clip(
                         self.agents[i]['epsilon_end'] * np.random.uniform(0.9, 1.1),
-                        0.001, 0.2
+                        0.05, 0.1
                     )
                     self.agents[i]['epsilon_decay_rate'] = np.clip(
                         self.agents[i]['epsilon_decay_rate'] * np.random.uniform(0.995, 1.005),
                         0.98, 0.999
                     )
-
                     # 学习参数
                     self.agents[i]['gamma'] = np.clip(
                         self.agents[i]['gamma'] * np.random.uniform(0.998, 1.002),
                         0.9, 0.999
                     )
                     self.agents[i]['lr'] = np.clip(
-                        self.agents[i]['lr'] * np.random.uniform(0.8, 1.2),
-                        1e-6, 1e-2
+                        self.agents[i]['lr'] * np.random.uniform(0.9, 1.1),
+                        1e-5, 1e-4
                     )
-
                     # 经验回放参数
                     self.agents[i]['buffer_size'] = int(np.clip(
                         self.agents[i]['buffer_size'] * np.random.uniform(0.9, 1.1),
-                        512, 50000
+                        10000, 50000
                     ))
                     self.agents[i]['batch_size'] = int(np.clip(
                         self.agents[i]['batch_size'] * np.random.uniform(0.9, 1.1),
-                        16, 1024
+                        64, 512
                     ))
                     self.agents[i]['update_frequency'] = int(np.clip(
                         self.agents[i]['update_frequency'] * np.random.uniform(0.8, 1.2),
-                        1, 50
+                        1, 10
                     ))
 
                     improved_count += 1
@@ -220,7 +218,6 @@ class PBTTrainer:
         print(f"✅ 最佳参数已保存到: {filename}")
         return filename
 
-
 def stable_eval_policy(agent, env, eval_episodes=5):
     """改进的评估函数 - 使用中位数减少异常值影响"""
     returns = []
@@ -239,7 +236,6 @@ def stable_eval_policy(agent, env, eval_episodes=5):
 
     # 使用中位数而不是平均值，减少异常值影响
     return float(np.median(returns))
-
 
 def train_with_pbt(args):
     env = gym.make("CartPole-v1")
@@ -268,7 +264,7 @@ def train_with_pbt(args):
 
     # 收敛性检查变量
     convergence_count = 0
-    target_performance = 450  # CartPole的目标性能
+    target_performance = 500  # CartPole的目标性能
 
     # PBT训练循环
     for episode in range(args.num_episodes):
@@ -363,13 +359,11 @@ def train_with_pbt(args):
     env.close()
     return best_config, saved_filename, plot_filename
 
-
 def load_best_parameters(filename):
     """从JSON文件加载最佳参数"""
     with open(filename, 'r') as f:
         parameters = json.load(f)
     return parameters
-
 
 if __name__ == "__main__":
     args = argparse.Namespace()

@@ -1,11 +1,9 @@
 import json
 import warnings
-
 warnings.filterwarnings('ignore')
 import gym
 from collections import deque
 import random
-import torch
 import numpy as np
 from optuna import create_study, Trial
 from optuna.samplers import TPESampler
@@ -20,8 +18,8 @@ class BayesianOptimizer:
         self.env = gym.make("CartPole-v1")
         self.best_params = None
 
+    # 超参数搜索空间
     def objective(self, trial: Trial):
-        # 超参数搜索空间
         lr = trial.suggest_float("lr", 1e-5, 1e-2, log=True)
         gamma = trial.suggest_float("gamma", 0.9, 0.999)
         epsilon_start = trial.suggest_float("epsilon_start", 0.8, 1.0)
@@ -49,11 +47,11 @@ class BayesianOptimizer:
 
         return composite_score
 
+    # 训练智能体并返回稳定性评估分数
     def train_and_evaluate(self, lr, gamma, epsilon_start, epsilon_end,
                            epsilon_decay_rate, batch_size, buffer_size,
                            update_frequency, lr_decay=0.999, lr_decay_frequency=200,
                            num_episodes=800, max_steps_per_episode=500):
-        """训练智能体并返回稳定性评估分数"""
         env = self.env
 
         # 初始化智能体
@@ -130,9 +128,8 @@ class BayesianOptimizer:
         )
         return final_performance
 
+    # 综合评估性能、稳定性和收敛性
     def comprehensive_evaluation(self, agent, episode_returns, eval_returns, stability_scores):
-        """综合评估性能、稳定性和收敛性"""
-
         # 1. 最终性能（最后10次评估的平均）
         if len(eval_returns) >= 10:
             final_perf = np.mean(eval_returns[-10:])
@@ -178,8 +175,9 @@ class BayesianOptimizer:
 
         return composite_score
 
+    # 评估策略
     def evaluate_policy(self, agent, num_episodes=5):
-        """更稳健的评估策略"""
+        """更稳健的"""
         total_returns = []
 
         for _ in range(num_episodes):
@@ -201,8 +199,8 @@ class BayesianOptimizer:
 
         return np.mean(total_returns)
 
+    # 执行优化并保存详细结果
     def optimize(self):
-        """执行优化并保存详细结果"""
         study = create_study(
             direction="maximize",
             sampler=TPESampler(seed=1234)
@@ -226,6 +224,7 @@ class BayesianOptimizer:
 
         return self.best_params
 
+    # 将最佳参数保存为json格式，便于在main.py中调用
     def save_detailed_results(self, study):
         """保存详细的优化结果用于分析"""
         results = {

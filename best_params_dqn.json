@@ -1,11 +1,11 @@
 {
-    "lr": 0.01,
-    "gamma": 0.9028931160210202,
-    "epsilon_start": 0.7912897512287829,
-    "epsilon_end": 0.028489869880085724,
-    "epsilon_decay_rate": 0.9739058276779641,
-    "batch_size": 51,
-    "buffer_size": 6817,
+    "lr": 8.858133493954402e-05,
+    "gamma": 0.9342842593737695,
+    "epsilon_start": 0.8756324637644137,
+    "epsilon_end": 0.05306303670081751,
+    "epsilon_decay_rate": 0.9868255889135402,
+    "batch_size": 250,
+    "buffer_size": 37698,
     "update_frequency": 1,
-    "final_max_return": 116.33333333333333
+    "final_max_return": 500.0
 }
