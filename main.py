@@ -27,7 +27,6 @@ def parser():
     args = parser.parse_args()
     return args
 
-
 def eval_policy(agent):
     state = env.reset()
     done = False
@@ -39,7 +38,6 @@ def eval_policy(agent):
         return_ += reward
     # print(f"Return {return_}") 
     return return_
-
 
 def train(args, agent, buffer):
     episodes = []
@@ -135,7 +133,7 @@ if __name__ == "__main__":
     else:
         # 使用最佳参数
         args = argparse.Namespace()
-        args.agent_name = "dqn"
+        args.agent_name = "ddqn"
         args.num_episodes = 600
         args.max_steps_per_episode = 500
         args.epsilon_start = best_params["epsilon_start"]
@@ -161,7 +159,7 @@ if __name__ == "__main__":
     if args.agent_name == "dqn":
         agent = DQNAgent(input_dim, output_dim, buffer_size=args.buffer_size, seed=1234, lr = args.lr)
     elif args.agent_name == "ddqn":
-        agent = DDQNAgent(input_dim, output_dim, buffer_size=args.buffer_size, seed=1234, lr = args.lr)
+        agent = DDQNAgent(input_dim, output_dim,buffer_size=args.buffer_size,seed=1234, lr = args.lr)
     else:
         assert False, "Not Implement agent!"
 

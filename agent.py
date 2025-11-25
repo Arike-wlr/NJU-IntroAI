@@ -75,10 +75,10 @@ class DQNAgent:
         for target_param, local_param in zip(target_model.parameters(), local_model.parameters()):
             target_param.data.copy_(tau * local_param.data + (1.0 - tau) * target_param.data)
 
-
+# Define the DDQN agent class
 class DDQNAgent(DQNAgent):
-    def __init__(self, state_dim, action_dim, seed, lr, device="cpu"):
-        super().__init__(state_dim, action_dim, seed, lr, device)
+    def __init__(self, state_dim, action_dim, buffer_size,seed, lr, device="cpu"):
+        super().__init__(state_dim, action_dim, buffer_size,seed, lr, device)
 
 
     # Learn from batch of experiences
