@@ -146,10 +146,10 @@ if __name__ == "__main__":
         args.buffer_size = best_params["buffer_size"]
         args.batch_size = best_params["batch_size"]
         args.update_frequency = best_params["update_frequency"]
+        args.save_plots=True
 
     print("Using parameters:", vars(args))
 
-    args = parser()
     # Set up the environment
     env = gym.make("CartPole-v1")
 

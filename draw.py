@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import re
 
 # 从文件中读取训练日志数据
-with open('training_log2.txt', 'r', encoding='utf-8') as file:
+with open('train_log.txt', 'r', encoding='utf-8') as file:
     data_text = file.read()
 
 # 解析数据

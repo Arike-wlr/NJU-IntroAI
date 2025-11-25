@@ -1,0 +1,12 @@
+{
+    "lr": 9.651561560839681e-05,
+    "gamma": 0.9796907576318281,
+    "epsilon_start": 0.9195802212881655,
+    "epsilon_end": 0.09597205990945085,
+    "epsilon_decay_rate": 0.9885003723080277,
+    "batch_size": 64,
+    "buffer_size": 20000,
+    "update_frequency": 1,
+    "lr_decay": 0.995523212767278,
+    "lr_decay_frequency": 200
+}
