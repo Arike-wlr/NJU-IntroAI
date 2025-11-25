@@ -19,11 +19,17 @@ class PBTTrainer:
         self.avg_returns_history = []
         self.min_returns_history = []
 
+        # 稳定性相关变量
+        self.stability_window = 5
+        self.best_performance_history = deque(maxlen=20)
+        self.pbt_update_count = 0
+        self.last_pbt_episode = -100
+
         # 初始化种群，每个智能体有随机超参数
         for i in range(population_size):
             agent_config = {
                 # 学习相关参数
-                'lr': 10 ** np.random.uniform(-5, -2),  # 10^-5 到 10^-2
+                'lr': 10 ** np.random.uniform(-5, -3),  # 10^-5 到 10^-3
                 'gamma': np.random.uniform(0.9, 0.999),
                 # 探索相关参数
                 'epsilon_start': np.random.uniform(0.8, 1.0),
@@ -37,59 +43,90 @@ class PBTTrainer:
             }
             self.agents.append(agent_config)
 
-    def exploit_and_explore(self, performances):
-        """利用和探索阶段"""
+    def should_perform_pbt(self, performances, episode):
+        """决定是否执行PBT更新"""
+        # 前期不进行PBT
+        if episode < 30:
+            return False
+
+        # 控制PBT更新频率
+        min_interval = max(20, 30 - self.pbt_update_count)
+        if episode - self.last_pbt_episode < min_interval:
+            return False
+
+        current_best = np.max(performances)
+        self.best_performance_history.append(current_best)
+
+        # 检查性能稳定性
+        if len(self.best_performance_history) >= self.stability_window:
+            recent = list(self.best_performance_history)[-self.stability_window:]
+            if np.std(recent) > np.mean(recent) * 0.2:
+                return False
+
+        return True
+
+    def exploit_and_explore(self, performances, episode):
+        """改进的利用和探索阶段 - 更保守的策略"""
         # 按性能排序
         sorted_indices = np.argsort(performances)[::-1]  # 降序
 
+        improved_count = 0
         for i in range(self.population_size):
             if i in sorted_indices[self.population_size // 2:]:  # 下半部分
-                # 利用：从上半部分随机选择一个父代
-                parent_idx = random.choice(sorted_indices[:self.population_size // 2])
+                # 从最好的1/3中选择父代
+                parent_idx = random.choice(sorted_indices[:max(1, self.population_size // 3)])
 
-                # 复制父代的参数
-                self.agents[i] = self.agents[parent_idx].copy()
+                # 只有当父代明显更好时才复制（15%改进）
+                improvement_ratio = performances[parent_idx] / max(performances[i], 1)
+                if improvement_ratio > 1.15:
+                    # 复制父代的参数
+                    self.agents[i] = self.agents[parent_idx].copy()
 
-                # 探索：随机扰动所有参数
-                # 探索策略参数
-                self.agents[i]['epsilon_start'] = np.clip(
-                    self.agents[i]['epsilon_start'] * np.random.uniform(0.9, 1.1),
-                    0.5, 1.0
-                )
-                self.agents[i]['epsilon_end'] = np.clip(
-                    self.agents[i]['epsilon_end'] * np.random.uniform(0.8, 1.2),
-                    0.001, 0.2
-                )
-                self.agents[i]['epsilon_decay_rate'] = np.clip(
-                    self.agents[i]['epsilon_decay_rate'] * np.random.uniform(0.98, 1.02),
-                    0.95, 0.9999
-                )
+                    # 更温和的探索：随机扰动所有参数
+                    # 探索策略参数
+                    self.agents[i]['epsilon_start'] = np.clip(
+                        self.agents[i]['epsilon_start'] * np.random.uniform(0.95, 1.05),
+                        0.5, 1.0
+                    )
+                    self.agents[i]['epsilon_end'] = np.clip(
+                        self.agents[i]['epsilon_end'] * np.random.uniform(0.9, 1.1),
+                        0.001, 0.2
+                    )
+                    self.agents[i]['epsilon_decay_rate'] = np.clip(
+                        self.agents[i]['epsilon_decay_rate'] * np.random.uniform(0.995, 1.005),
+                        0.98, 0.999
+                    )
 
-                # 学习参数
-                self.agents[i]['gamma'] = np.clip(
-                    self.agents[i]['gamma'] * np.random.uniform(0.99, 1.01),
-                    0.9, 0.999
-                )
-                self.agents[i]['lr'] = np.clip(
-                    self.agents[i]['lr'] * np.random.uniform(0.5, 2.0),
-                    1e-6, 1e-2
-                )
+                    # 学习参数
+                    self.agents[i]['gamma'] = np.clip(
+                        self.agents[i]['gamma'] * np.random.uniform(0.998, 1.002),
+                        0.9, 0.999
+                    )
+                    self.agents[i]['lr'] = np.clip(
+                        self.agents[i]['lr'] * np.random.uniform(0.8, 1.2),
+                        1e-6, 1e-2
+                    )
 
-                # 经验回放参数
-                self.agents[i]['buffer_size'] = int(np.clip(
-                    self.agents[i]['buffer_size'] * np.random.uniform(0.7, 1.3),
-                    512, 50000
-                ))
-                self.agents[i]['batch_size'] = int(np.clip(
-                    self.agents[i]['batch_size'] * np.random.uniform(0.8, 1.2),
-                    16, 1024
-                ))
-                self.agents[i]['update_frequency'] = int(np.clip(
-                    self.agents[i]['update_frequency'] * np.random.uniform(0.8, 1.2),
-                    1, 50
-                ))
+                    # 经验回放参数
+                    self.agents[i]['buffer_size'] = int(np.clip(
+                        self.agents[i]['buffer_size'] * np.random.uniform(0.9, 1.1),
+                        512, 50000
+                    ))
+                    self.agents[i]['batch_size'] = int(np.clip(
+                        self.agents[i]['batch_size'] * np.random.uniform(0.9, 1.1),
+                        16, 1024
+                    ))
+                    self.agents[i]['update_frequency'] = int(np.clip(
+                        self.agents[i]['update_frequency'] * np.random.uniform(0.8, 1.2),
+                        1, 50
+                    ))
 
-                print(f"Agent {i} 从 {parent_idx} 复制并探索新参数")
+                    improved_count += 1
+                    print(f"Agent {i} 从 {parent_idx} 复制并探索 (改进: {improvement_ratio:.2f}x)")
+
+        self.pbt_update_count += 1
+        self.last_pbt_episode = episode
+        print(f"PBT更新完成: {improved_count}个智能体被改进")
 
     def get_best_agent(self, performances):
         """获取性能最好的智能体配置"""
@@ -136,7 +173,7 @@ class PBTTrainer:
         plt.plot(episodes, min_returns, 'r-', linewidth=2, label='最小回报', alpha=0.8)
 
         # 标记PBT更新点
-        pbt_episodes = [ep for ep in episodes if ep % 10 == 0 and ep > 0]
+        pbt_episodes = [ep for ep in episodes if hasattr(self, 'last_pbt_episode') and ep == self.last_pbt_episode]
         if pbt_episodes:
             pbt_returns = [max_returns[episodes.index(ep)] for ep in pbt_episodes]
             plt.scatter(pbt_episodes, pbt_returns, color='orange', s=50,
@@ -184,12 +221,32 @@ class PBTTrainer:
         return filename
 
 
+def stable_eval_policy(agent, env, eval_episodes=5):
+    """改进的评估函数 - 使用中位数减少异常值影响"""
+    returns = []
+    for _ in range(eval_episodes):
+        state = env.reset()
+        done = False
+        episode_return = 0
+
+        while not done and episode_return < 1000:  # 添加最大步数限制
+            action = agent.act(state, 0.0)  # 完全贪婪
+            next_state, reward, done, _ = env.step(action)
+            state = next_state
+            episode_return += reward
+
+        returns.append(episode_return)
+
+    # 使用中位数而不是平均值，减少异常值影响
+    return float(np.median(returns))
+
+
 def train_with_pbt(args):
     env = gym.make("CartPole-v1")
     input_dim = env.observation_space.shape[0]
     output_dim = env.action_space.n
 
-    # 初始化PBT训练器
+    # 初始化改进的PBT训练器
     pbt_trainer = PBTTrainer(population_size=10)
 
     # 为每个智能体创建对应的DQN agent和buffer
@@ -208,6 +265,10 @@ def train_with_pbt(args):
         buffers.append(buffer)
         print(f"Agent {config['agent_id']}: LR={config['lr']:.6f}, "
               f"Buffer={config['buffer_size']}, Batch={config['batch_size']}")
+
+    # 收敛性检查变量
+    convergence_count = 0
+    target_performance = 450  # CartPole的目标性能
 
     # PBT训练循环
     for episode in range(args.num_episodes):
@@ -239,38 +300,57 @@ def train_with_pbt(args):
                 if done:
                     break
 
-            # 评估当前智能体的性能
-            eval_return = eval_policy(agent, env)
+            # 使用改进的评估函数
+            eval_return = stable_eval_policy(agent, env)
             performances.append(eval_return)
 
-        # 更新性能历史记录（每episode都记录）
+        # 更新性能历史记录
         pbt_trainer.update_performance_history(performances, episode)
 
-        # 每N个episode执行一次PBT的利用和探索
-        pbt_interval = 10
-        if episode % pbt_interval == 0 and episode > 0:
-            print(f"\n=== 第{episode}episode执行PBT更新 ===")
-            pbt_trainer.exploit_and_explore(performances)
+        # 检查收敛性
+        current_best = np.max(performances)
+        if current_best >= target_performance:
+            convergence_count += 1
+        else:
+            convergence_count = 0
+
+        # 自适应PBT更新
+        if pbt_trainer.should_perform_pbt(performances, episode):
+            print(f"\n=== Episode {episode} 执行PBT更新 ===")
+            pbt_trainer.exploit_and_explore(performances, episode)
 
             # 更新所有智能体的参数
             for i, config in enumerate(pbt_trainer.agents):
+                # 更新学习率
                 for param_group in agents[i].optimizer.param_groups:
                     param_group['lr'] = config['lr']
 
+                # 谨慎调整buffer大小
                 if buffers[i].maxlen != config['buffer_size']:
-                    old_buffer = buffers[i]
-                    buffers[i] = deque(maxlen=config['buffer_size'])
-                    for experience in list(old_buffer)[-config['buffer_size']:]:
-                        buffers[i].append(experience)
+                    new_buffer_size = config['buffer_size']
+                    current_buffer_list = list(buffers[i])
 
-        # 每20个episode打印状态
-        if episode % 20 == 0:
+                    if new_buffer_size < len(current_buffer_list):
+                        # 如果新buffer更小，保留最近的经验
+                        buffers[i] = deque(current_buffer_list[-new_buffer_size:],
+                                           maxlen=new_buffer_size)
+                    else:
+                        buffers[i] = deque(current_buffer_list, maxlen=new_buffer_size)
+
+        # 提前停止条件
+        if convergence_count >= 10:  # 连续10次达到目标性能
+            print(f"🎯 提前停止！连续{convergence_count}次达到目标性能 {target_performance}")
+            break
+
+        # 每20个episode打印状态（减少打印频率）
+        if episode % 20 == 0 or episode < 10:
             pbt_trainer.print_population_status(performances, episode)
 
     # 训练结束
     best_config, best_performance = pbt_trainer.get_best_agent(performances)
 
     print(f"\n🎉 训练完成！最佳性能: {best_performance:.1f}")
+    print(f"总PBT更新次数: {pbt_trainer.pbt_update_count}")
 
     # 绘制性能图表
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -282,22 +362,6 @@ def train_with_pbt(args):
 
     env.close()
     return best_config, saved_filename, plot_filename
-
-
-def eval_policy(agent, env, eval_episodes=3):
-    """评估策略，取多次平均"""
-    total_return = 0
-    for _ in range(eval_episodes):
-        state = env.reset()
-        done = False
-        episode_return = 0
-        while not done:
-            action = agent.act(state, eps=0.)
-            next_state, reward, done, _ = env.step(action)
-            state = next_state
-            episode_return += reward
-        total_return += episode_return
-    return total_return / eval_episodes
 
 
 def load_best_parameters(filename):
