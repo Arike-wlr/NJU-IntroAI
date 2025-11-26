@@ -85,6 +85,15 @@ def plot_training_progress(episodes, losses, eval_returns, args):
     # 创建图像
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 10))
 
+    pre_low_episode = 200 if args.agent_name == 'ddqn' else 300
+    if len(eval_returns) > pre_low_episode:
+        avg_return = sum(eval_returns[pre_low_episode:]) / (len(eval_returns) - pre_low_episode)
+    else:
+        avg_return = sum(eval_returns) / len(eval_returns)
+    max_return = max(eval_returns)
+    ax1.axhline(y=avg_return, color='r', linestyle='--', alpha=0.5, label=f'Average Return: {avg_return:.1f}')
+    ax1.axhline(y=max_return, color='orange', linestyle='--', alpha=0.5, label=f'Max Return: {max_return:.1f}')
+
     # 绘制回报曲线
     ax1.plot(episodes, eval_returns, 'b-', alpha=0.6, label='Evaluation Return')
     ax1.set_xlabel('Episode')
@@ -95,7 +104,6 @@ def plot_training_progress(episodes, losses, eval_returns, args):
 
     # 绘制损失曲线
     if losses and len(losses) > 0:
-        # 确保losses是纯Python数值列表
         losses_clean = [float(loss) for loss in losses]
         ax2.plot(episodes[:len(losses_clean)], losses_clean, 'g-', alpha=0.7)
         ax2.set_xlabel('Episode')
@@ -125,7 +133,7 @@ def load_optimized_params(agent_name='dqn'):
         return None
 
 if __name__ == "__main__":
-    best_params = load_optimized_params()
+    best_params = load_optimized_params('dqn')
 
     if best_params is None:
         # 如果没有找到最佳参数文件，使用默认参数
@@ -133,7 +141,7 @@ if __name__ == "__main__":
     else:
         # 使用最佳参数
         args = argparse.Namespace()
-        args.agent_name = "ddqn"
+        args.agent_name = "dqn"
         args.num_episodes = 600
         args.max_steps_per_episode = 500
         args.epsilon_start = best_params["epsilon_start"]

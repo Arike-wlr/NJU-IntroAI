@@ -367,7 +367,7 @@ def load_best_parameters(filename):
 
 if __name__ == "__main__":
     args = argparse.Namespace()
-    args.agent_name = "dqn"
+    args.agent_name = "ddqn"
     args.num_episodes = 600
     args.max_steps_per_episode = 500
 

@@ -92,7 +92,7 @@ class DDQNAgent(DQNAgent):
         dones = torch.from_numpy(np.vstack(dones).astype(np.uint8)).float().to(device)
 
         action_max = torch.argmax(self.qnetwork_local(next_states), dim=1).unsqueeze(1)
-        Q_targets = rewards + (gamma * torch.gather(self.qnetwork_target(next_states).detach(), 1, action_max) * (1 - dones))
+        Q_targets = rewards + (gamma * torch.gather(self.qnetwork_target(next_states).detach(), 1, action_max) * (1 - dones)) # 这里不一样！
 
         Q_expected = self.qnetwork_local(states).gather(1, actions)
 

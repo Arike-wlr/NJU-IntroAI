@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import re
+from datetime import datetime
 
 # 从文件中读取训练日志数据
 with open('train_log.txt', 'r', encoding='utf-8') as file:
@@ -51,12 +52,20 @@ plt.ylabel('Return')
 plt.grid(True, alpha=0.3)
 
 # 添加一些统计信息
-avg_return = sum(returns) / len(returns)
+pre_low_episode = 300
+if len(returns) > pre_low_episode:
+    avg_return = sum(returns[pre_low_episode:]) / (len(returns) - pre_low_episode)
+else:
+    avg_return = sum(returns) / len(returns)
 max_return = max(returns)
 plt.axhline(y=avg_return, color='r', linestyle='--', alpha=0.5, label=f'Average Return: {avg_return:.1f}')
 plt.axhline(y=max_return, color='orange', linestyle='--', alpha=0.5, label=f'Max Return: {max_return:.1f}')
 plt.legend()
 
 plt.tight_layout()
-plt.show()
+timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+plot_filename = f"training_progress_{timestamp}.png"
+plt.savefig(plot_filename, dpi=300, bbox_inches='tight')
+print(f"训练图像已保存为: {plot_filename}")
 
+plt.show()
