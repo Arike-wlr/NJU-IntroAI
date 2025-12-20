@@ -6,12 +6,14 @@ from collections import defaultdict
 
 # mcts.py框架
 class MCTSNode:
-    def __init__(self, state, parent=None, prior=0):
+    """MCTS树节点"""
+    def __init__(self, state, player, parent=None, prior=0):
         self.state = state
+        self.player = player  # 当前玩家 (0=黑, 1=白)
         self.parent = parent
-        self.children = {}
+        self.children = {} # 动作->子节点
         self.visit_count = 0
-        self.value_sum = 0
+        self.value_sum = 0.0
         self.prior = prior  # 来自策略网络的先验概率
 
     def expanded(self):
@@ -23,25 +25,24 @@ class MCTSNode:
         return self.value_sum / self.visit_count
 
 class MCTS:
-    def __init__(self, deep_net, shallow_net, num_simulations=100):
-        self.deep_net = deep_net  # 树策略
-        self.shallow_net = shallow_net  # rollout策略
-        self.num_simulations = num_simulations
-
-    def search(self, state):
-        # 执行多次模拟
-        for _ in range(self.num_simulations):
-            self._simulate(state)
-        # 返回动作概率
-
-    def _simulate(self, state):
-        # 选择 → 扩展 → 评估 → 回传
-        pass
+    """蒙特卡洛树搜索"""
+    def __init__(self, exploration_weight=1.0, simulation_limit=50):
+        self.exploration_weight = exploration_weight
+        self.simulation_limit = simulation_limit
+        self.root = None
 
     def _select(self, node):
-        # PUCT算法选择
+        # TODO:选择阶段：使用UCB选择子节点
+        pass
+
+    def _expand(self, node):
+        #TODO:扩展阶段：为当前节点添加子节点
         pass
 
     def _evaluate(self, state):
         # 使用浅层网络快速走子
+        pass
+
+    def _backpropagate(self, node, value):
+        #TODO:回传阶段：更新路径上的统计信息
         pass
