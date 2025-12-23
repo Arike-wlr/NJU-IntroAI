@@ -4,10 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a209a3a7-e977-44f0-952a-b0750bef703e" name="更改" comment="在搞了在搞了">
-      <change afterPath="$PROJECT_DIR$/test/mcts_test.py" afterDir="false" />
+    <list default="true" id="a209a3a7-e977-44f0-952a-b0750bef703e" name="更改" comment="框架1.0版本">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/algorimths/mcts.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorimths/mcts.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/environment/go.py" beforeDir="false" afterPath="$PROJECT_DIR$/environment/go.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/mcts_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/mcts_test.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -44,21 +45,22 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;Python.a2c_vs_random_demo.executor&quot;: &quot;Run&quot;,
-    &quot;Python.dqn_vs_random_demo.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;HW5&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/mini_go/mini_go&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Python.a2c_vs_random_demo.executor": "Run",
+    "Python.dqn_vs_random_demo.executor": "Run",
+    "Python.mcts_test.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "HW5",
+    "ignore.virus.scanning.warn.message": "true",
+    "last_opened_file_path": "D:/mini_go/mini_go",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   }
-}</component>
-  <component name="RunManager" selected="Python.dqn_vs_random_demo">
+}]]></component>
+  <component name="RunManager" selected="Python.mcts_test">
     <configuration name="a2c_vs_random_demo" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="mini_go" />
       <option name="ENV_FILES" value="" />
@@ -103,8 +105,31 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="mcts_test" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="mini_go" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/test" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/test/mcts_test.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.mcts_test" />
         <item itemvalue="Python.dqn_vs_random_demo" />
         <item itemvalue="Python.a2c_vs_random_demo" />
       </list>
@@ -149,14 +174,34 @@
       <option name="project" value="LOCAL" />
       <updated>1766241429050</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="框架1.0版本">
+      <option name="closed" value="true" />
+      <created>1766476130898</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1766476130898</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="MCTS" />
     <MESSAGE value="先实现MCTS框架，用随机策略先整，先不管神经网络" />
     <MESSAGE value="在搞了在搞了" />
-    <option name="LAST_COMMIT_MESSAGE" value="在搞了在搞了" />
+    <MESSAGE value="框架1.0版本" />
+    <option name="LAST_COMMIT_MESSAGE" value="框架1.0版本" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
