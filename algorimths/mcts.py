@@ -34,7 +34,7 @@ class MCTS:
         self.root = None
 
     def _select(self, node):
-        # TODO:选择阶段：使用UCB选择子节点
+        """选择阶段：使用UCB选择子节点"""
         # UCB公式：Q + c * sqrt(ln(N)/n)
         if not node.expanded() or node.is_terminal():
             return node
@@ -58,8 +58,8 @@ class MCTS:
         return self._select(best_child)
 
     def _expand(self, node):
-        #TODO:扩展阶段：为当前节点添加子节点
-        legal_moves_mask = node.state.all_legal_moves()
+        """扩展阶段：为当前节点添加子节点"""
+        legal_moves_mask = node.position.all_legal_moves()
         board_moves = legal_moves_mask[:-1].reshape(int(os.environ.get('BOARD_SIZE', 5)), -1)
         legal_actions = np.where(legal_moves_mask == 1)[0]
 
@@ -140,6 +140,9 @@ class MCTS:
 
         return value
 
+    def _simulate(self,node):
+        return self._random_action(node)
+
     def _evaluate(self, state):
         # 使用浅层网络快速走子
         pass
@@ -154,4 +157,51 @@ class MCTS:
             current = current.parent
 
     def search(self,position,current_player,num_simulations=100):
-        pass
+        """执行MCTS搜索"""
+        # 创建根节点，扩展根节点
+        self.root = MCTSNode(position, current_player)
+        self._expand(self.root)
+
+        for _ in range(num_simulations):
+            leaf = self._select(self.root) # 1. 选择
+            if not leaf.is_terminal() and leaf.visit_count > 0: # 2. 扩展
+                self._expand(leaf)
+                leaf = self._select(leaf)
+            value = self._simulate(leaf) # 3. 模拟
+            self._backpropagate(leaf, value) # 4. 回传
+
+        visit_counts = np.zeros(len(position.all_legal_moves()))
+        for action, child in self.root.children.items():
+            if 0 <= action < len(visit_counts):
+                visit_counts[action] = child.visit_count
+
+        total_visits = sum(visit_counts)
+        if total_visits > 0:
+            action_probs = visit_counts / total_visits
+        else:
+            legal_moves = position.all_legal_moves()
+            action_probs = legal_moves / legal_moves.sum()
+
+        return action_probs
+
+    def get_best_action(self,position, current_player, num_simulations=100, temperature=1.0):
+        """根据MCTS搜索结果选择最佳动作"""
+        action_probs = self.search(position, current_player, num_simulations)
+
+        if temperature == 0:
+            best_action = np.argmax(action_probs)
+        else:
+            log_probs = np.log(action_probs + 1e-8) / temperature
+            exp_log_probs = np.exp(log_probs)
+            probs = exp_log_probs / exp_log_probs.sum()
+            best_action = np.random.choice(len(probs), p=probs)
+
+        return best_action, action_probs
+
+    def update_root(self, action):
+        """更新根节点（用于连续决策）"""
+        if self.root and action in self.root.children:
+            self.root = self.root.children[action]
+            self.root.parent = None
+        else:
+            self.root = None

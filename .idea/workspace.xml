@@ -4,10 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a209a3a7-e977-44f0-952a-b0750bef703e" name="更改" comment="先实现MCTS框架，用随机策略先整，先不管神经网络">
+    <list default="true" id="a209a3a7-e977-44f0-952a-b0750bef703e" name="更改" comment="在搞了在搞了">
+      <change afterPath="$PROJECT_DIR$/test/mcts_test.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/algorimths/mcts.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorimths/mcts.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -141,13 +141,22 @@
       <option name="project" value="LOCAL" />
       <updated>1766238839209</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="在搞了在搞了">
+      <option name="closed" value="true" />
+      <created>1766241429050</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1766241429050</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="MCTS" />
     <MESSAGE value="先实现MCTS框架，用随机策略先整，先不管神经网络" />
-    <option name="LAST_COMMIT_MESSAGE" value="先实现MCTS框架，用随机策略先整，先不管神经网络" />
+    <MESSAGE value="在搞了在搞了" />
+    <option name="LAST_COMMIT_MESSAGE" value="在搞了在搞了" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
