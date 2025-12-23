@@ -1,5 +1,5 @@
 import os
-import tensorflow as tf
+import time
 import pickle
 
 
@@ -33,7 +33,7 @@ class ModelSaver:
             'iteration': iteration,
             'hidden_layers': agent._layer_sizes,
             'num_actions': agent._num_actions,
-            'save_time': tf.timestamp().numpy()
+            'save_time':time.time()
         }
 
         meta_path = os.path.join(self.policy_dir, f"{filename}_meta.pkl")

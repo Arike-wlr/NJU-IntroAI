@@ -4,12 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a209a3a7-e977-44f0-952a-b0750bef703e" name="更改" comment="框架（随机走子）最终版本">
-      <change afterPath="$PROJECT_DIR$/model_saver.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/train_script/policy_gradient_train.py" afterDir="false" />
+    <list default="true" id="a209a3a7-e977-44f0-952a-b0750bef703e" name="更改" comment="在搭训练+保存模型的框架">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/agent/agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/agent/agent.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/algorimths/policy_gradient.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorimths/policy_gradient.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/algorimths/mcts.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorimths/mcts.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model_saver.py" beforeDir="false" afterPath="$PROJECT_DIR$/model_saver.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/train_script/policy_gradient_train.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -52,6 +52,7 @@
     "Python.a2c_vs_random_demo.executor": "Run",
     "Python.dqn_vs_random_demo.executor": "Run",
     "Python.mcts_test.executor": "Run",
+    "Python.policy_gradient_train.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
     "RunOnceActivity.git.unshallow": "true",
@@ -61,7 +62,7 @@
     "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   }
 }]]></component>
-  <component name="RunManager" selected="Python.mcts_test">
+  <component name="RunManager" selected="Python.policy_gradient_train">
     <configuration name="a2c_vs_random_demo" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="mini_go" />
       <option name="ENV_FILES" value="" />
@@ -128,8 +129,31 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="policy_gradient_train" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="mini_go" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/train_script" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/train_script/policy_gradient_train.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.policy_gradient_train" />
         <item itemvalue="Python.mcts_test" />
         <item itemvalue="Python.dqn_vs_random_demo" />
         <item itemvalue="Python.a2c_vs_random_demo" />
@@ -191,7 +215,15 @@
       <option name="project" value="LOCAL" />
       <updated>1766478070622</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="在搭训练+保存模型的框架">
+      <option name="closed" value="true" />
+      <created>1766481056637</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1766481056637</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -211,7 +243,8 @@
     <MESSAGE value="在搞了在搞了" />
     <MESSAGE value="框架1.0版本" />
     <MESSAGE value="框架（随机走子）最终版本" />
-    <option name="LAST_COMMIT_MESSAGE" value="框架（随机走子）最终版本" />
+    <MESSAGE value="在搭训练+保存模型的框架" />
+    <option name="LAST_COMMIT_MESSAGE" value="在搭训练+保存模型的框架" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

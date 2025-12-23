@@ -2,6 +2,7 @@ import random, collections
 import numpy as np
 import tensorflow as tf
 from algorimths.policy_gradient import PolicyGradient
+from environment.GoEnv import TimeStep, StepType
 StepOutput = collections.namedtuple("step_output", ["action", "probs"])
 
 
@@ -45,7 +46,7 @@ class GoPolicyAgent:
             num_critic_before_pi=8
         )
 
-        self.session = session
+        self._session = session
 
         # 添加保存器
         self._saver = tf.train.Saver(max_to_keep=10)
@@ -67,21 +68,20 @@ class GoPolicyAgent:
         legal_moves = position.all_legal_moves()
         legal_actions = np.where(legal_moves == 1)[0]
 
-        # 创建假的时间步对象（适配OpenSpiel接口）
-        class FakeTimeStep:
-            def __init__(self, state, legal_actions, reward=0.0):
-                self.observations = {
-                    "info_state": [state, None],  # [当前玩家状态，对手状态]
-                    "legal_actions": [legal_actions, None]
-                }
-                self.current_player = 0
-                self.rewards = [reward, 0.0]
-                self.discounts = [1.0, 1.0]
+        # 创建 observations
+        observations = {
+            "info_state": [state, None],
+            "legal_actions": [legal_actions, None],
+            "current_player": 0
+        }
 
-            def last(self):
-                return False
-
-        time_step = FakeTimeStep(state, legal_actions)
+        # 创建 TimeStep 对象
+        time_step = TimeStep(
+            observations=observations,
+            rewards=[0.0, 0.0],  # 当前奖励为0
+            discounts=[1.0, 1.0],  # 折扣因子
+            step_type=StepType.MID  # 中间步骤
+        )
         step_output = self.agent.step(time_step, is_evaluation=is_evaluation)
         return step_output.action, step_output.probs
 

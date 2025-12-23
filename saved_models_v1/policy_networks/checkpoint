@@ -1,0 +1,7 @@
+model_checkpoint_path: "rollout_policy_final"
+all_model_checkpoint_paths: "rollout_policy_iter_100"
+all_model_checkpoint_paths: "rollout_policy_iter_200"
+all_model_checkpoint_paths: "rollout_policy_iter_300"
+all_model_checkpoint_paths: "rollout_policy_iter_400"
+all_model_checkpoint_paths: "rollout_policy_iter_500"
+all_model_checkpoint_paths: "rollout_policy_final"

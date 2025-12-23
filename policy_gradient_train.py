@@ -5,6 +5,8 @@ import tensorflow as tf
 from environment.go import Position
 from environment import coords
 from agent.agent import GoPolicyAgent
+from model_saver import ModelSaver
+
 
 def play_one_game(agent, opponent="random", is_training=True):
     """玩一局游戏，返回经验数据"""
@@ -86,42 +88,58 @@ def main():
     tf.reset_default_graph()
     sess = tf.Session()
 
-    # 训练深度网络
-    print("创建深度网络...")
+    # 创建模型保存器
+    model_saver = ModelSaver(save_dir="./saved_models_v1")
+
+    print("=== 训练深层网络 ===")
     deep_agent = GoPolicyAgent(
         session=sess,
         hidden_layers=[256, 256],  # 深层网络
         loss_str="a2c"
     )
-
-    print("训练深度网络...")
+    sess.run(tf.global_variables_initializer())
     for episode in range(1000):
-        # 玩一局游戏（agent会自动记录和学习）
         _, result = play_one_game(deep_agent, opponent="random", is_training=True)
-
-        # 定期评估
         if (episode + 1) % 50 == 0:
             win_rate = evaluate(deep_agent, num_games=10)
             print(f"Episode {episode + 1}/1000, Win Rate: {win_rate:.2f}")
 
-    print("\n=== 训练浅层走子网络 ===")
-    # 训练浅层网络
+            if (episode + 1) % 100 == 0:
+                print(f"  保存检查点...")
+                model_saver.save_policy_network(
+                    deep_agent,
+                    "deep_policy",
+                    iteration=episode + 1
+                )
+
+    print("=== 训练浅层网络 ===")
     rollout_agent = GoPolicyAgent(
         session=sess,
-        hidden_layers=[64],  # 浅层网络
+        hidden_layers=[64],
         loss_str="a2c"
     )
-
-    print("训练浅层网络...")
-    for episode in range(500):  # 更少训练
+    sess.run(tf.global_variables_initializer())
+    for episode in range(500):
         _, result = play_one_game(rollout_agent, opponent="random", is_training=True)
-
         if (episode + 1) % 50 == 0:
             win_rate = evaluate(rollout_agent, num_games=10)
             print(f"Episode {episode + 1}/500, Win Rate: {win_rate:.2f}")
 
-    print("\n=== 保存模型 ===")
+            if (episode + 1) % 100 == 0:
+                print(f"  保存检查点...")
+                model_saver.save_policy_network(
+                    rollout_agent,
+                    "rollout_policy",
+                    iteration=episode + 1
+                )
 
+    print("=== 保存最终模型 ===")
+    model_saver.save_policy_network(deep_agent, "deep_policy_final")
+    model_saver.save_policy_network(rollout_agent, "rollout_policy_final")
+    print("保存的策略网络:")
+    saved_models = model_saver.list_saved_models("policy")
+    for model in saved_models:
+        print(f"  - {model}")
     print("训练完成！")
     sess.close()
 
