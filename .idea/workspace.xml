@@ -4,11 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a209a3a7-e977-44f0-952a-b0750bef703e" name="更改" comment="框架1.0版本">
+    <list default="true" id="a209a3a7-e977-44f0-952a-b0750bef703e" name="更改" comment="框架（随机走子）最终版本">
+      <change afterPath="$PROJECT_DIR$/model_saver.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/train_script/policy_gradient_train.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/algorimths/mcts.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorimths/mcts.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/environment/go.py" beforeDir="false" afterPath="$PROJECT_DIR$/environment/go.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/mcts_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/mcts_test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/agent/agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/agent/agent.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/algorimths/policy_gradient.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorimths/policy_gradient.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -182,7 +183,15 @@
       <option name="project" value="LOCAL" />
       <updated>1766476130898</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="框架（随机走子）最终版本">
+      <option name="closed" value="true" />
+      <created>1766478070622</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1766478070622</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -201,7 +210,8 @@
     <MESSAGE value="先实现MCTS框架，用随机策略先整，先不管神经网络" />
     <MESSAGE value="在搞了在搞了" />
     <MESSAGE value="框架1.0版本" />
-    <option name="LAST_COMMIT_MESSAGE" value="框架1.0版本" />
+    <MESSAGE value="框架（随机走子）最终版本" />
+    <option name="LAST_COMMIT_MESSAGE" value="框架（随机走子）最终版本" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
