@@ -44,8 +44,7 @@ class ModelSaver:
         return tf_path
 
     def save_value_network(self, network, name, iteration=None):
-        """保存价值网络"""
-        # 类似保存逻辑
+        """保存价值网络,暂时不需要"""
         pass
 
     def load_policy_network(self, agent, filename):

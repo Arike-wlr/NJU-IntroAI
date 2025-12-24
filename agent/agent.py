@@ -90,8 +90,18 @@ class GoPolicyAgent:
         state = self.encode_state(position)
 
         state_batch = np.reshape(state, [1, -1])
-        probs = self.session.run(
+        probs = self._session.run(
             self.agent._policy_probs,
             feed_dict={self.agent._info_state_ph: state_batch}
         )[0]
         return probs
+
+    def save(self, save_path):
+        """保存模型"""
+        self._saver.save(self._session, save_path)
+        print(f"✅ 模型保存到: {save_path}")
+
+    def restore(self, save_path):
+        """加载模型"""
+        self._saver.restore(self._session, save_path)
+        print(f"✅ 模型从 {save_path} 加载成功")

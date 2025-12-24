@@ -63,8 +63,7 @@ def play_one_game(agent, opponent="random", is_training=True):
                 point = coords.from_flat(action)
                 game = game.play_move(point, mutate=False)
 
-    # 游戏结束，获取结果
-    result = game.result()  # 黑胜:1, 白胜:-1, 平:0
+    result = game.result()
 
     return episode_data, result
 
@@ -86,18 +85,18 @@ def main():
 
     # 创建TensorFlow会话
     tf.reset_default_graph()
-    sess = tf.Session()
+    deep_sess = tf.Session()
 
     # 创建模型保存器
-    model_saver = ModelSaver(save_dir="./saved_models_v1")
+    model_saver = ModelSaver(save_dir="./saved_models")
 
     print("=== 训练深层网络 ===")
     deep_agent = GoPolicyAgent(
-        session=sess,
+        session=deep_sess,
         hidden_layers=[256, 256],  # 深层网络
         loss_str="a2c"
     )
-    sess.run(tf.global_variables_initializer())
+    deep_sess.run(tf.global_variables_initializer())
     for episode in range(1000):
         _, result = play_one_game(deep_agent, opponent="random", is_training=True)
         if (episode + 1) % 50 == 0:
@@ -113,12 +112,14 @@ def main():
                 )
 
     print("=== 训练浅层网络 ===")
+    tf.reset_default_graph()
+    rollout_sess = tf.Session()
     rollout_agent = GoPolicyAgent(
-        session=sess,
+        session=rollout_sess,
         hidden_layers=[64],
         loss_str="a2c"
     )
-    sess.run(tf.global_variables_initializer())
+    rollout_sess.run(tf.global_variables_initializer())
     for episode in range(500):
         _, result = play_one_game(rollout_agent, opponent="random", is_training=True)
         if (episode + 1) % 50 == 0:
@@ -140,9 +141,10 @@ def main():
     saved_models = model_saver.list_saved_models("policy")
     for model in saved_models:
         print(f"  - {model}")
-    print("训练完成！")
-    sess.close()
 
+    deep_sess.close()
+    rollout_sess.close()
+    print("训练完成！")
 
 if __name__ == "__main__":
     main()

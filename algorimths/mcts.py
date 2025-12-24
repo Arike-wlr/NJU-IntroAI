@@ -215,7 +215,7 @@ class AlphaGoMCTS(MCTS):
 
         self.deep_policy = GoPolicyAgent(
             session=self.deep_sess,
-            hidden_layers=[256, 256],  # 和训练时相同
+            hidden_layers=[256, 256],
             loss_str="a2c"
         )
 
