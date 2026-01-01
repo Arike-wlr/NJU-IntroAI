@@ -3,6 +3,7 @@ import numpy as np
 import tensorflow as tf
 from algorimths.policy_gradient import PolicyGradient
 from environment.GoEnv import TimeStep, StepType
+
 StepOutput = collections.namedtuple("step_output", ["action", "probs"])
 
 
@@ -25,31 +26,40 @@ class RandomAgent(Agent):
 
 
 class GoPolicyAgent:
-    """围棋策略梯度智能体"""
-    def __init__(self, session, hidden_layers=[128, 128], loss_str="a2c"):
+    """围棋策略梯度智能体 - 改进版，解决变量名问题"""
+
+    def __init__(self, session, hidden_layers=[128, 128], loss_str="a2c", name="agent"):
         self.board_size = 5
         self.state_size = self.board_size * self.board_size  # 25
         self.num_actions = self.board_size * self.board_size + 1  # 26
 
-        # 创建PolicyGradient实例
-        self.agent = PolicyGradient(
-            session=session,
-            player_id=0,  # 总是玩家0（黑棋）
-            info_state_size=self.state_size,
-            num_actions=self.num_actions,
-            loss_str=loss_str,  # 使用A2C算法
-            hidden_layers_sizes=hidden_layers,
-            batch_size=32,
-            critic_learning_rate=0.01,
-            pi_learning_rate=0.001,
-            entropy_cost=0.01,
-            num_critic_before_pi=8
-        )
-
         self._session = session
+        self._hidden_layers = hidden_layers
+        self._loss_str = loss_str
+        self._name = name  # 用于变量作用域
 
-        # 添加保存器
-        self._saver = tf.train.Saver(max_to_keep=10)
+        # 使用变量作用域确保一致的变量名
+        with tf.variable_scope(name, reuse=tf.AUTO_REUSE):
+            # 创建PolicyGradient实例
+            self.agent = PolicyGradient(
+                session=session,
+                player_id=0,  # 总是玩家0（黑棋）
+                info_state_size=self.state_size,
+                num_actions=self.num_actions,
+                loss_str=loss_str,  # 使用A2C算法
+                hidden_layers_sizes=hidden_layers,
+                batch_size=32,
+                critic_learning_rate=0.01,
+                pi_learning_rate=0.001,
+                entropy_cost=0.01,
+                num_critic_before_pi=8
+            )
+
+            # 收集所有变量
+            self._all_vars = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope=name)
+
+            # 创建Saver，只保存本作用域的变量
+            self._saver = tf.train.Saver(var_list=self._all_vars, max_to_keep=10)
 
         # 添加网络参数存储（用于元数据）
         self._layer_sizes = hidden_layers
@@ -99,9 +109,73 @@ class GoPolicyAgent:
     def save(self, save_path):
         """保存模型"""
         self._saver.save(self._session, save_path)
-        print(f"✅ 模型保存到: {save_path}")
+        print(f"✅ [{self._name}] 模型保存到: {save_path}")
 
     def restore(self, save_path):
         """加载模型"""
-        self._saver.restore(self._session, save_path)
-        print(f"✅ 模型从 {save_path} 加载成功")
+        try:
+            self._saver.restore(self._session, save_path)
+            print(f"✅ [{self._name}] 模型从 {save_path} 加载成功")
+            return True
+        except Exception as e:
+            print(f"❌ [{self._name}] 加载模型失败: {e}")
+            return False
+
+    def get_variable_names(self):
+        """获取所有变量名称（用于调试）"""
+        return [v.name for v in self._all_vars]
+
+
+# 工厂函数，用于正确创建agent
+def create_policy_agent(hidden_layers=[256, 256], loss_str="a2c", name=None):
+    """创建策略梯度agent的工厂函数"""
+    if name is None:
+        import time
+        name = f"agent_{int(time.time())}"
+
+    # 创建新图
+    tf.reset_default_graph()
+    session = tf.Session()
+
+    # 创建agent
+    agent = GoPolicyAgent(
+        session=session,
+        hidden_layers=hidden_layers,
+        loss_str=loss_str,
+        name=name
+    )
+
+    # 初始化变量
+    session.run(tf.global_variables_initializer())
+
+    return agent, session
+
+
+def load_policy_agent(save_path, hidden_layers=[256, 256], loss_str="a2c", name=None):
+    """加载策略梯度agent"""
+    if name is None:
+        # 从路径提取名称
+        import os
+        name = os.path.basename(save_path).replace('_deep', '').replace('_rollout', '')
+
+    # 创建新图
+    tf.reset_default_graph()
+    session = tf.Session()
+
+    # 创建agent
+    agent = GoPolicyAgent(
+        session=session,
+        hidden_layers=hidden_layers,
+        loss_str=loss_str,
+        name=name
+    )
+
+    # 初始化变量
+    session.run(tf.global_variables_initializer())
+
+    # 加载模型
+    if agent.restore(save_path):
+        return agent, session
+    else:
+        session.close()
+        return None, None

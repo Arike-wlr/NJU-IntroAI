@@ -4,13 +4,80 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a209a3a7-e977-44f0-952a-b0750bef703e" name="更改" comment="哈哈哈哈哈模型保存啦！新MCTS框架也搭好啦！">
-      <change afterPath="$PROJECT_DIR$/test/alphagomcts_test.py" afterDir="false" />
+    <list default="true" id="a209a3a7-e977-44f0-952a-b0750bef703e" name="更改" comment="双层网络MCTS能测试了">
+      <change afterPath="$PROJECT_DIR$/opponent_pool.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/opponent_pool_train.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/agent/agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/agent/agent.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/algorimths/mcts.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorimths/mcts.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/model_saver.py" beforeDir="false" afterPath="$PROJECT_DIR$/model_saver.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/policy_gradient_train.py" beforeDir="false" afterPath="$PROJECT_DIR$/policy_gradient_train.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/checkpoint" beforeDir="false" afterPath="$PROJECT_DIR$/saved_models/policy_networks/checkpoint" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/deep_policy_final.data-00000-of-00001" beforeDir="false" afterPath="$PROJECT_DIR$/saved_models/policy_networks/deep_policy_final.data-00000-of-00001" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/deep_policy_final.index" beforeDir="false" afterPath="$PROJECT_DIR$/saved_models/policy_networks/deep_policy_final.index" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/deep_policy_final.meta" beforeDir="false" afterPath="$PROJECT_DIR$/saved_models/policy_networks/deep_policy_final.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/deep_policy_final_meta.pkl" beforeDir="false" afterPath="$PROJECT_DIR$/saved_models/policy_networks/deep_policy_final_meta.pkl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/deep_policy_iter_1000.data-00000-of-00001" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/deep_policy_iter_1000.index" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/deep_policy_iter_1000.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/deep_policy_iter_1000_meta.pkl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/deep_policy_iter_100_meta.pkl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/deep_policy_iter_200.data-00000-of-00001" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/deep_policy_iter_200.index" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/deep_policy_iter_200.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/deep_policy_iter_200_meta.pkl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/deep_policy_iter_300.data-00000-of-00001" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/deep_policy_iter_300.index" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/deep_policy_iter_300.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/deep_policy_iter_300_meta.pkl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/deep_policy_iter_400.data-00000-of-00001" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/deep_policy_iter_400.index" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/deep_policy_iter_400.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/deep_policy_iter_400_meta.pkl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/deep_policy_iter_500.data-00000-of-00001" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/deep_policy_iter_500.index" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/deep_policy_iter_500.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/deep_policy_iter_500_meta.pkl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/deep_policy_iter_600.data-00000-of-00001" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/deep_policy_iter_600.index" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/deep_policy_iter_600.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/deep_policy_iter_600_meta.pkl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/deep_policy_iter_700.data-00000-of-00001" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/deep_policy_iter_700.index" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/deep_policy_iter_700.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/deep_policy_iter_700_meta.pkl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/deep_policy_iter_800.data-00000-of-00001" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/deep_policy_iter_800.index" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/deep_policy_iter_800.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/deep_policy_iter_800_meta.pkl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/deep_policy_iter_900.data-00000-of-00001" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/deep_policy_iter_900.index" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/deep_policy_iter_900.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/deep_policy_iter_900_meta.pkl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/rollout_policy_final.data-00000-of-00001" beforeDir="false" afterPath="$PROJECT_DIR$/saved_models/policy_networks/rollout_policy_final.data-00000-of-00001" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/rollout_policy_final.index" beforeDir="false" afterPath="$PROJECT_DIR$/saved_models/policy_networks/rollout_policy_final.index" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/rollout_policy_final.meta" beforeDir="false" afterPath="$PROJECT_DIR$/saved_models/policy_networks/rollout_policy_final.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/rollout_policy_final_meta.pkl" beforeDir="false" afterPath="$PROJECT_DIR$/saved_models/policy_networks/rollout_policy_final_meta.pkl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/rollout_policy_iter_100.data-00000-of-00001" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/rollout_policy_iter_100.index" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/rollout_policy_iter_100.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/rollout_policy_iter_100_meta.pkl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/rollout_policy_iter_200.data-00000-of-00001" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/rollout_policy_iter_200.index" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/rollout_policy_iter_200.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/rollout_policy_iter_200_meta.pkl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/rollout_policy_iter_300.data-00000-of-00001" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/rollout_policy_iter_300.index" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/rollout_policy_iter_300.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/rollout_policy_iter_300_meta.pkl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/rollout_policy_iter_400.data-00000-of-00001" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/rollout_policy_iter_400.index" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/rollout_policy_iter_400.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/rollout_policy_iter_400_meta.pkl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/rollout_policy_iter_500.data-00000-of-00001" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/rollout_policy_iter_500.index" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/rollout_policy_iter_500.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/saved_models/policy_networks/rollout_policy_iter_500_meta.pkl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/alphagomcts_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/alphagomcts_test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/mcts_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/mcts_test.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -47,46 +114,26 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "Python.a2c_vs_random_demo.executor": "Run",
-    "Python.alphagomcts_test.executor": "Run",
-    "Python.dqn_vs_random_demo.executor": "Run",
-    "Python.mcts_test.executor": "Run",
-    "Python.policy_gradient_train.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "HW5",
-    "ignore.virus.scanning.warn.message": "true",
-    "last_opened_file_path": "D:/mini_go/mini_go",
-    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;Python.a2c_vs_random_demo.executor&quot;: &quot;Run&quot;,
+    &quot;Python.alphagomcts_test.executor&quot;: &quot;Run&quot;,
+    &quot;Python.dqn_vs_random_demo.executor&quot;: &quot;Run&quot;,
+    &quot;Python.mcts_test.executor&quot;: &quot;Run&quot;,
+    &quot;Python.opponent_pool_train.executor&quot;: &quot;Run&quot;,
+    &quot;Python.policy_gradient_train (1).executor&quot;: &quot;Run&quot;,
+    &quot;Python.policy_gradient_train.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;HW5&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/mini_go/mini_go&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager" selected="Python.alphagomcts_test">
-    <configuration name="a2c_vs_random_demo" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="mini_go" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/a2c_vs_random_demo.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
     <configuration name="alphagomcts_test" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="mini_go" />
       <option name="ENV_FILES" value="" />
@@ -109,28 +156,6 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="dqn_vs_random_demo" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="mini_go" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/dqn_vs_random_demo.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
     <configuration name="mcts_test" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="mini_go" />
       <option name="ENV_FILES" value="" />
@@ -145,6 +170,50 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/test/mcts_test.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="opponent_pool_train" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="mini_go" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/opponent_pool_train.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="policy_gradient_train (1)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="mini_go" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/policy_gradient_train.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -178,10 +247,10 @@
     <recent_temporary>
       <list>
         <item itemvalue="Python.alphagomcts_test" />
+        <item itemvalue="Python.opponent_pool_train" />
+        <item itemvalue="Python.policy_gradient_train (1)" />
         <item itemvalue="Python.policy_gradient_train" />
         <item itemvalue="Python.mcts_test" />
-        <item itemvalue="Python.dqn_vs_random_demo" />
-        <item itemvalue="Python.a2c_vs_random_demo" />
       </list>
     </recent_temporary>
   </component>
@@ -256,7 +325,15 @@
       <option name="project" value="LOCAL" />
       <updated>1766498679087</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="双层网络MCTS能测试了">
+      <option name="closed" value="true" />
+      <created>1766552273550</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1766552273551</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -278,7 +355,8 @@
     <MESSAGE value="框架（随机走子）最终版本" />
     <MESSAGE value="在搭训练+保存模型的框架" />
     <MESSAGE value="哈哈哈哈哈模型保存啦！新MCTS框架也搭好啦！" />
-    <option name="LAST_COMMIT_MESSAGE" value="哈哈哈哈哈模型保存啦！新MCTS框架也搭好啦！" />
+    <MESSAGE value="双层网络MCTS能测试了" />
+    <option name="LAST_COMMIT_MESSAGE" value="双层网络MCTS能测试了" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

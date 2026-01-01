@@ -3,7 +3,6 @@ import sys
 os.environ['BOARD_SIZE'] = '5'
 sys.path.append('.')
 import numpy as np
-import copy
 from environment import coords
 import importlib
 import environment.go as go_module

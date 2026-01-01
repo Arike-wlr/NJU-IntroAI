@@ -22,6 +22,8 @@ def test_model_loading():
     # 检查模型文件
     deep_path = "../saved_models/policy_networks/deep_policy_final"
     rollout_path = "../saved_models/policy_networks/rollout_policy_final"
+    # deep_path = "../saved_models/opponent_pool/deep_policy_final"
+    # rollout_path = "../saved_models/opponent_pool/rollout_policy_final"
 
     print(f"模型文件检查:")
     print(f"  深度网络: {os.path.exists(deep_path + '.index')}")
@@ -34,7 +36,6 @@ def test_model_loading():
         print("⚠️ 找不到浅层网络")
 
     return deep_path, rollout_path
-
 
 def test_neural_networks(alphago):
     """测试神经网络预测"""
@@ -76,7 +77,6 @@ def test_neural_networks(alphago):
     except Exception as e:
         print(f"   ❌ 浅层网络预测失败: {e}")
 
-
 def test_mcts_search(alphago):
     """测试MCTS搜索"""
     game = Position(komi=0.5)
@@ -108,70 +108,146 @@ def test_mcts_search(alphago):
         traceback.print_exc()
         return None, None
 
-
 def compare_with_random_mcts(alphago):
-    """对比神经网络MCTS和随机MCTS"""
-    # 创建随机MCTS
-    random_mcts = MCTS(exploration_weight=1.0, simulation_limit=10)
+    """神经网络MCTS vs 随机MCTS 完整对弈比较"""
+    num_games = 10
+    neural_wins = 0
+    random_wins = 0
+    draws = 0
 
-    # 测试几个不同的局面
-    test_games = []
-    for i in range(3):
+    for game_num in range(num_games):
+        print(f"\n=== 第{game_num + 1}局 ===")
+
+        # 初始化游戏
         game = Position(komi=0.5)
-        # 随机走几步，创建不同局面
-        for j in range(i * 2):
-            legal_moves = game.all_legal_moves()
-            legal_actions = np.where(legal_moves == 1)[0]
-            if len(legal_actions) > 0:
-                action = np.random.choice(legal_actions)
+
+        # 创建随机MCTS
+        random_mcts = MCTS(exploration_weight=1.0, simulation_limit=10)
+
+        step = 0
+        max_steps = 50  # 防止无限循环
+
+        black_player = "神经网络MCTS"
+        white_player = "随机MCTS"
+        black_mcts = alphago
+        white_mcts = random_mcts
+        print(f"神经网络MCTS执黑(X)，随机MCTS执白(O)")
+
+        while not game.is_game_over() and step < max_steps:
+            current_player = 0 if game.to_play == 1 else 1
+
+            if current_player == 0:
+                if black_player == "神经网络MCTS":
+                    action, probs = black_mcts.get_best_action(
+                        game, current_player,
+                        num_simulations=30,
+                        temperature=0.5
+                    )
+                else:
+                    action, probs = black_mcts.get_best_action(
+                        game, current_player,
+                        num_simulations=30
+                    )
+
+                # 执行动作
                 if action == 25:
                     game = game.pass_move(mutate=False)
+                    print(f"黑方({black_player}): PASS")
                 else:
                     point = coords.from_flat(action)
                     game = game.play_move(point, mutate=False)
-        test_games.append(game)
+                    print(f"黑方({black_player})落子: ({point[0]}, {point[1]})")
 
-    print(f"测试 {len(test_games)} 个不同局面")
+                    # 如果是神经网络MCTS，更新根节点
+                    if black_player == "神经网络MCTS":
+                        alphago.update_root(action)
 
-    for i, game in enumerate(test_games):
-        print(f"局面 {i + 1}:")
+            else:  # 白棋走子
+                if white_player == "神经网络MCTS":
+                    # 神经网络MCTS思考
+                    action, probs = white_mcts.get_best_action(
+                        game, current_player,
+                        num_simulations=30,
+                        temperature=0.5
+                    )
+                else:
+                    # 随机MCTS思考
+                    action, probs = white_mcts.get_best_action(
+                        game, current_player,
+                        num_simulations=30
+                    )
+
+                # 执行动作
+                if action == 25:
+                    game = game.pass_move(mutate=False)
+                    print(f"白方({white_player}): PASS")
+                else:
+                    point = coords.from_flat(action)
+                    game = game.play_move(point, mutate=False)
+                    print(f"白方({white_player})落子: ({point[0]}, {point[1]})")
+
+                    # 如果是神经网络MCTS，更新根节点
+                    if white_player == "神经网络MCTS":
+                        alphago.update_root(action)
+
+            step += 1
+            # if step % 10 == 0:
+            #     print(f"\n第{step}步后棋盘:")
+            #     print_simple_board(game.board)
+
+        print("对弈结束!")
+        print(f"总步数: {step}")
+
+        # 显示最终棋盘
+        print("最终棋盘:")
         print_simple_board(game.board)
 
-        # 神经网络MCTS
-        import time
-        start = time.time()
-        neural_action, neural_probs = alphago.get_best_action(
-            game, 0, num_simulations=30
-        )
-        neural_time = time.time() - start
+        # 计算胜负
+        if game.is_game_over():
+            result = game.result()
+            result_str = game.result_string()
+            print(f"最终结果: {result_str}")
 
-        # 随机MCTS
-        start = time.time()
-        random_action, random_probs = random_mcts.get_best_action(
-            game, 0, num_simulations=30
-        )
-        random_time = time.time() - start
+            # 根据执子方判断谁赢
+            if result > 0:  # 黑胜
+                winner = black_player
+                if black_player == "神经网络MCTS":
+                    neural_wins += 1
+                else:
+                    random_wins += 1
+            elif result < 0:  # 白胜
+                winner = white_player
+                if white_player == "神经网络MCTS":
+                    neural_wins += 1
+                else:
+                    random_wins += 1
+            else:  # 平局
+                winner = "平局"
+                draws += 1
 
-        print(f"  神经网络MCTS: 动作={neural_action}, 时间={neural_time:.2f}s")
-        print(f"  随机MCTS:     动作={random_action}, 时间={random_time:.2f}s")
-
-        # 简单评估：谁的动作更靠近中心
-        def distance_to_center(action):
-            if action == 25:  # PASS
-                return 10  # 很大的值
-            point = coords.from_flat(action)
-            center = 2  # 5x5棋盘的中心是(2,2)
-            return abs(point[0] - center) + abs(point[1] - center)
-
-        neural_dist = distance_to_center(neural_action)
-        random_dist = distance_to_center(random_action)
-
-        if neural_dist < random_dist:
-            print(f"  ✅ 神经网络动作更好（更靠近中心）")
-        elif random_dist < neural_dist:
-            print(f"  ⚠️  随机动作更好")
+            print(f"本局胜者: {winner}")
         else:
-            print(f"  ➖ 两者相当")
+            print("达到最大步数限制，判定为平局")
+            draws += 1
+
+        print(f"当前比分 - 神经网络MCTS: {neural_wins}胜, 随机MCTS: {random_wins}胜, 平局: {draws}")
+
+        # # 每局结束后暂停一下
+        # if game_num < num_games - 1:
+        #     input("\n按Enter继续下一局...")
+
+    print("对弈统计结果")
+    print(f"总对局数: {num_games}")
+    print(f"神经网络MCTS胜场: {neural_wins}")
+    print(f"随机MCTS胜场: {random_wins}")
+    print(f"平局: {draws}")
+
+    if neural_wins > random_wins:
+        print("神经网络MCTS获胜")
+    elif random_wins > neural_wins:
+        print("随机MCTS获胜")
+    else:
+        print("双方平手")
 
 
 def play_demo_game(alphago):
@@ -269,29 +345,23 @@ def main():
         return
 
     # 3. 测试神经网络
-    test_neural_networks(alphago)
-
+    # test_neural_networks(alphago)
     # 4. 测试MCTS搜索
-    best_action, probs = test_mcts_search(alphago)
-
-    # 5. 性能对比（可选，时间较长）
-    user_input = input("\n是否进行性能对比测试？(y/n): ")
-    if user_input.lower() == 'y':
-        compare_with_random_mcts(alphago)
-
-    # 6. 对弈演示
-    user_input = input("\n是否观看对弈演示？(y/n): ")
-    if user_input.lower() == 'y':
-        play_demo_game(alphago)
-
-    # 7. 清理
-    print("\n清理资源...")
+    # best_action, probs = test_mcts_search(alphago)
+    # # 5. 性能对比（可选，时间较长）
+    # user_input = input("\n是否进行性能对比测试？(y/n): ")
+    # if user_input.lower() == 'y':
+    #
+    # # 6. 对弈演示
+    # user_input = input("\n是否观看对弈演示？(y/n): ")
+    # if user_input.lower() == 'y':
+    #     play_demo_game(alphago)
+    compare_with_random_mcts(alphago)
+    # 清理
+    print("清理资源...")
     alphago.deep_sess.close()
     alphago.rollout_sess.close()
-
-    print("\n" + "=" * 60)
     print("✅ 所有测试完成！")
-    print("=" * 60)
 
 
 if __name__ == "__main__":
