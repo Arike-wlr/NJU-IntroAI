@@ -37,7 +37,7 @@ class GoPolicyAgent:
         self._hidden_layers = hidden_layers
         self._loss_str = loss_str
         self._name = name  # 用于变量作用域
-
+        print(f"✅ [DEBUG] 创建Agent，变量作用域名称: {name}")
         # 使用变量作用域确保一致的变量名
         with tf.variable_scope(name, reuse=tf.AUTO_REUSE):
             # 创建PolicyGradient实例

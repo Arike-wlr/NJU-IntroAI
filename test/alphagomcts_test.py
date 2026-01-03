@@ -24,6 +24,8 @@ def test_model_loading():
     # rollout_path = "../saved_models/policy_networks/rollout_policy_final"
     deep_path = "../saved_models/opponent_pool/deep_policy_final"
     rollout_path = "../saved_models/opponent_pool/rollout_policy_final"
+    # deep_path = "../saved_models_optimized/policy_networks/deep_policy_optimized"
+    # rollout_path = "../saved_models_optimized/policy_networks/rollout_policy_optimized"
 
     print(f"模型文件检查:")
     print(f"  深度网络: {os.path.exists(deep_path + '.index')}")
@@ -110,7 +112,7 @@ def test_mcts_search(alphago):
 
 def compare_with_random_mcts(alphago):
     """神经网络MCTS vs 随机MCTS 完整对弈比较"""
-    num_games = 10
+    num_games = 50
     neural_wins = 0
     random_wins = 0
     draws = 0
@@ -131,8 +133,6 @@ def compare_with_random_mcts(alphago):
         white_player = "随机MCTS"
         black_mcts = alphago
         white_mcts = random_mcts
-        print(f"神经网络MCTS执黑(X)，随机MCTS执白(O)")
-
         while not game.is_game_over() and step < max_steps:
             current_player = 0 if game.to_play == 1 else 1
 
@@ -152,11 +152,11 @@ def compare_with_random_mcts(alphago):
                 # 执行动作
                 if action == 25:
                     game = game.pass_move(mutate=False)
-                    print(f"黑方({black_player}): PASS")
+                    # print(f"黑方({black_player}): PASS")
                 else:
                     point = coords.from_flat(action)
                     game = game.play_move(point, mutate=False)
-                    print(f"黑方({black_player})落子: ({point[0]}, {point[1]})")
+                    # print(f"黑方({black_player})落子: ({point[0]}, {point[1]})")
 
                     # 如果是神经网络MCTS，更新根节点
                     if black_player == "神经网络MCTS":
@@ -164,37 +164,30 @@ def compare_with_random_mcts(alphago):
 
             else:  # 白棋走子
                 if white_player == "神经网络MCTS":
-                    # 神经网络MCTS思考
+                    # 神经网络MCTS
                     action, probs = white_mcts.get_best_action(
                         game, current_player,
                         num_simulations=30,
                         temperature=0.5
                     )
                 else:
-                    # 随机MCTS思考
+                    # 随机MCTS
                     action, probs = white_mcts.get_best_action(
                         game, current_player,
                         num_simulations=30
                     )
-
                 # 执行动作
                 if action == 25:
                     game = game.pass_move(mutate=False)
-                    print(f"白方({white_player}): PASS")
+                    # print(f"白方({white_player}): PASS")
                 else:
                     point = coords.from_flat(action)
                     game = game.play_move(point, mutate=False)
-                    print(f"白方({white_player})落子: ({point[0]}, {point[1]})")
-
-                    # 如果是神经网络MCTS，更新根节点
+                    # print(f"白方({white_player})落子: ({point[0]}, {point[1]})")
                     if white_player == "神经网络MCTS":
                         alphago.update_root(action)
 
             step += 1
-            # if step % 10 == 0:
-            #     print(f"\n第{step}步后棋盘:")
-            #     print_simple_board(game.board)
-
         print("对弈结束!")
         print(f"总步数: {step}")
 
@@ -232,23 +225,11 @@ def compare_with_random_mcts(alphago):
 
         print(f"当前比分 - 神经网络MCTS: {neural_wins}胜, 随机MCTS: {random_wins}胜, 平局: {draws}")
 
-        # # 每局结束后暂停一下
-        # if game_num < num_games - 1:
-        #     input("\n按Enter继续下一局...")
-
     print("对弈统计结果")
     print(f"总对局数: {num_games}")
     print(f"神经网络MCTS胜场: {neural_wins}")
     print(f"随机MCTS胜场: {random_wins}")
     print(f"平局: {draws}")
-
-    if neural_wins > random_wins:
-        print("神经网络MCTS获胜")
-    elif random_wins > neural_wins:
-        print("随机MCTS获胜")
-    else:
-        print("双方平手")
-
 
 def play_demo_game(alphago):
     """演示对弈"""
@@ -321,13 +302,13 @@ def play_demo_game(alphago):
 
 def main():
     """主测试函数"""
-    # 1. 测试模型加载
+    # 测试模型加载
     deep_path, rollout_path = test_model_loading()
     if not deep_path or not rollout_path:
-        print("❌ 无法加载模型，请先训练模型")
+        print("无法加载模型，请先训练模型")
         return
 
-    # 2. 创建AlphaGo MCTS
+    # 创建AlphaGo MCTS
     print("创建AlphaGo MCTS...")
     try:
         alphago = AlphaGoMCTS(
@@ -336,32 +317,17 @@ def main():
             exploration_weight=1.0,
             simulation_limit=10
         )
-        print("✅ AlphaGo MCTS创建成功")
-
+        print("AlphaGo MCTS创建成功")
     except Exception as e:
-        print(f"❌ 创建AlphaGo MCTS失败: {e}")
+        print(f"创建AlphaGo MCTS失败: {e}")
         import traceback
         traceback.print_exc()
         return
-
-    # 3. 测试神经网络
-    # test_neural_networks(alphago)
-    # 4. 测试MCTS搜索
-    # best_action, probs = test_mcts_search(alphago)
-    # # 5. 性能对比（可选，时间较长）
-    # user_input = input("\n是否进行性能对比测试？(y/n): ")
-    # if user_input.lower() == 'y':
-    #
-    # # 6. 对弈演示
-    # user_input = input("\n是否观看对弈演示？(y/n): ")
-    # if user_input.lower() == 'y':
-    #     play_demo_game(alphago)
     compare_with_random_mcts(alphago)
-    # 清理
     print("清理资源...")
     alphago.deep_sess.close()
     alphago.rollout_sess.close()
-    print("✅ 所有测试完成！")
+    print("所有测试完成！")
 
 
 if __name__ == "__main__":

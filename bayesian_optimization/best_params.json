@@ -1,0 +1,20 @@
+{
+  "score": 52.0,
+  "params": {
+    "mcts_simulations":  124,
+    "exploration_weight": 1.6195872025782099,
+    "rollout_limit": 51,
+    "critic_lr": 0.006010603698064649,
+    "pi_lr": 0.0003978067187448131,
+    "entropy_cost": 0.0491950973167859,
+    "batch_size": 28,
+    "num_critic_before_pi": 7
+  },
+  "metrics": {
+    "train_win_rate": 0.35,
+    "win_rate_no_mcts": 0.7333333333333333,
+    "win_rate_mcts": 0.2,
+    "mcts_improvement": 0.0
+  },
+  "timestamp": "2026-01-03T20:27:00.832076"
+}

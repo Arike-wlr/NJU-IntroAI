@@ -1,5 +1,7 @@
 import os
+
 os.environ['BOARD_SIZE'] = '5'
+import json
 import numpy as np
 import tensorflow as tf
 from environment.go import Position
@@ -79,6 +81,7 @@ class TrainingMonitor:
 
 def create_smart_opponent():
     """创建智能随机对手"""
+
     class SmartRandom:
         def __init__(self):
             self.board_size = 5
@@ -215,23 +218,28 @@ def evaluate_agent(agent, num_games=30, opponent_type="random"):
     return win_rate, avg_reward
 
 
-def train_single_agent(agent_type, hidden_layers, episodes, model_saver, monitor):
-    """训练单个智能体"""
+def train_single_agent(agent, session, agent_type, hidden_layers, episodes,
+                       model_saver, monitor, params=None):
+    """训练单个智能体 - 修复版本"""
     print(f"\n=== 训练 {agent_type} 网络 ===")
     print(f"  网络结构: {hidden_layers}")
     print(f"  训练局数: {episodes}")
 
-    # 创建新的TensorFlow图
-    tf.reset_default_graph()
-    session = tf.Session()
+    # 如果传入了优化参数，应用到agent
+    if params and agent_type == "deep":
+        print(f"  使用优化参数:")
+        print(f"    Critic学习率: {params.get('critic_lr', 0.01):.6f}")
+        print(f"    Policy学习率: {params.get('pi_lr', 0.001):.6f}")
+        print(f"    熵正则化: {params.get('entropy_cost', 0.01):.4f}")
+        print(f"    批次大小: {params.get('batch_size', 32)}")
+        print(f"    Critic更新次数: {params.get('num_critic_before_pi', 8)}")
 
-    # 创建智能体
-    agent = GoPolicyAgent(
-        session=session,
-        hidden_layers=hidden_layers,
-        loss_str="a2c"
-    )
-    session.run(tf.global_variables_initializer())
+        # 应用优化后的RL参数到已创建的agent
+        agent.agent._critic_learning_rate = params.get('critic_lr', 0.01)
+        agent.agent._pi_learning_rate = params.get('pi_lr', 0.001)
+        agent.agent._entropy_cost = params.get('entropy_cost', 0.01)
+        agent.agent._batch_size = params.get('batch_size', 32)
+        agent.agent._num_critic_before_pi = params.get('num_critic_before_pi', 8)
 
     # 训练参数
     epsilon = 0.3
@@ -287,20 +295,21 @@ def train_single_agent(agent_type, hidden_layers, episodes, model_saver, monitor
             if total_episodes % 100 == 0:
                 model_name = f"{agent_type}_checkpoint_{total_episodes}"
                 model_saver.save_policy_network(agent, model_name, iteration=total_episodes)
-                print(f"    💾 保存检查点: {model_name}")
+                print(f"    保存检查点: {model_name}")
 
     # 最终评估
-    print(f"\n  📊 {agent_type}网络最终评估:")
+    print(f"\n  {agent_type}网络最终评估:")
     for opponent in ["random", "smart_random"]:
         win_rate, avg_reward = evaluate_agent(agent, num_games=20, opponent_type=opponent)
         print(f"    对抗{opponent}: 胜率={win_rate:.2%}, 奖励={avg_reward:.3f}")
 
-    return agent, session
+    return agent
 
 
 def train_both_networks():
     """训练两个网络：深度网络和浅层网络"""
     print("A2C策略梯度训练 - 双网络版本")
+
     # 创建模型保存器
     model_saver = ModelSaver(save_dir="./saved_models")
 
@@ -321,30 +330,53 @@ def train_both_networks():
         }
     }
 
-    trained_agents = {}
-    sessions = {}
-
     # 训练深度网络
-    deep_agent, deep_session = train_single_agent(
-        **training_config["deep"],
-        model_saver=model_saver,
-        monitor=monitor
+    print("\n训练深度网络...")
+    tf.reset_default_graph()
+    deep_sess = tf.Session()
+    deep_agent = GoPolicyAgent(
+        session=deep_sess,
+        hidden_layers=[256, 256],
+        loss_str="a2c"
     )
-    trained_agents["deep"] = deep_agent
-    sessions["deep"] = deep_session
+    deep_sess.run(tf.global_variables_initializer())
+
+    deep_agent = train_single_agent(
+        agent=deep_agent,
+        session=deep_sess,
+        agent_type="deep",
+        hidden_layers=[256, 256],
+        episodes=1200,
+        model_saver=model_saver,
+        monitor=monitor,
+        params=None  # 不使用优化参数
+    )
 
     # 训练浅层网络
-    rollout_agent, rollout_session = train_single_agent(
-        **training_config["rollout"],
-        model_saver=model_saver,
-        monitor=monitor
+    print("\n训练浅层网络...")
+    tf.reset_default_graph()
+    rollout_sess = tf.Session()
+    rollout_agent = GoPolicyAgent(
+        session=rollout_sess,
+        hidden_layers=[64],
+        loss_str="a2c"
     )
-    trained_agents["rollout"] = rollout_agent
-    sessions["rollout"] = rollout_session
+    rollout_sess.run(tf.global_variables_initializer())
+
+    rollout_agent = train_single_agent(
+        agent=rollout_agent,
+        session=rollout_sess,
+        agent_type="rollout",
+        hidden_layers=[64],
+        episodes=500,
+        model_saver=model_saver,
+        monitor=monitor,
+        params=None  # 不使用优化参数
+    )
 
     print("保存最终模型")
-    model_saver.save_policy_network(trained_agents["deep"], "deep_policy_final")
-    model_saver.save_policy_network(trained_agents["rollout"], "rollout_policy_final")
+    model_saver.save_policy_network(deep_agent, "deep_policy_final")
+    model_saver.save_policy_network(rollout_agent, "rollout_policy_final")
 
     # 测试MCTS整合
     print("\n测试MCTS整合...")
@@ -354,9 +386,9 @@ def train_both_networks():
             deep_policy_agent="./saved_models/deep_policy_final",
             rollout_policy_agent="./saved_models/rollout_policy_final"
         )
-        print("✅ MCTS整合测试通过")
+        print("MCTS整合测试通过")
     except Exception as e:
-        print(f"⚠️  MCTS整合警告: {e}")
+        print(f"MCTS整合警告: {e}")
 
     # 列出保存的模型
     print("\n已保存的模型:")
@@ -365,18 +397,154 @@ def train_both_networks():
         print(f"  - {model}")
 
     # 关闭所有会话
-    for name, session in sessions.items():
-        session.close()
-        print(f"已关闭 {name} 网络的会话")
+    deep_sess.close()
+    rollout_sess.close()
+    print("已关闭深度网络的会话")
+    print("已关闭浅层网络的会话")
 
     # 绘制训练曲线
     print("生成训练曲线...")
     monitor.plot_training()
+    print("训练完成！")
 
-    print(" 训练完成！")
+    return {"deep": deep_agent, "rollout": rollout_agent}
 
-    return trained_agents
+
+def train_both_networks_with_optimized_params():
+    """使用优化后的参数训练两个网络 - 修复版本"""
+
+    # 加载优化后的参数
+    with open("./bayesian_optimization/best_params.json", 'r') as f:
+        best_params = json.load(f)
+    params = best_params['params']
+
+    print("=" * 70)
+    print("使用优化参数训练网络")
+    print("=" * 70)
+    print(f"MCTS模拟次数: {params.get('mcts_simulations', 100)}")
+    print(f"MCTS探索权重: {params.get('exploration_weight', 1.0):.3f}")
+    print(f"Rollout限制: {params.get('rollout_limit', 50)}")
+    print(f"Critic学习率: {params.get('critic_lr', 0.01):.6f}")
+    print(f"Policy学习率: {params.get('pi_lr', 0.001):.6f}")
+    print(f"熵正则化: {params.get('entropy_cost', 0.01):.4f}")
+    print(f"批次大小: {params.get('batch_size', 32)}")
+    print(f"Critic更新次数: {params.get('num_critic_before_pi', 8)}")
+    print("=" * 70)
+
+    # 创建模型保存器
+    model_saver = ModelSaver(save_dir="./saved_models_optimized")
+
+    # 创建训练监控器
+    monitor = TrainingMonitor()
+
+    # 训练深度网络（使用优化参数）
+    print("\n训练深度网络（使用优化参数）...")
+    tf.reset_default_graph()
+    deep_sess = tf.Session()
+    deep_agent = GoPolicyAgent(
+        session=deep_sess,
+        hidden_layers=[256, 256],
+        loss_str="a2c"
+    )
+    deep_sess.run(tf.global_variables_initializer())
+
+    deep_agent = train_single_agent(
+        agent=deep_agent,
+        session=deep_sess,
+        agent_type="deep",
+        hidden_layers=[256, 256],
+        episodes=1200,
+        model_saver=model_saver,
+        monitor=monitor,
+        params=params  # 传递优化参数
+    )
+
+    # 训练浅层网络
+    print("\n训练浅层网络...")
+    tf.reset_default_graph()
+    rollout_sess = tf.Session()
+    rollout_agent = GoPolicyAgent(
+        session=rollout_sess,
+        hidden_layers=[64],
+        loss_str="a2c"
+    )
+    rollout_sess.run(tf.global_variables_initializer())
+
+    rollout_agent = train_single_agent(
+        agent=rollout_agent,
+        session=rollout_sess,
+        agent_type="rollout",
+        hidden_layers=[64],
+        episodes=500,
+        model_saver=model_saver,
+        monitor=monitor,
+        params=None  # 浅层网络不使用优化参数
+    )
+
+    print("保存最终模型")
+    model_saver.save_policy_network(deep_agent, "deep_policy_optimized")
+    model_saver.save_policy_network(rollout_agent, "rollout_policy_optimized")
+
+    # 保存优化参数配置
+    config_file = "./optimized_training_config.json"
+    with open(config_file, 'w') as f:
+        json.dump({
+            'mcts_params': {
+                'simulations': params.get('mcts_simulations', 100),
+                'exploration_weight': params.get('exploration_weight', 1.0),
+                'rollout_limit': params.get('rollout_limit', 50)
+            },
+            'rl_params': {
+                'critic_lr': params.get('critic_lr', 0.01),
+                'pi_lr': params.get('pi_lr', 0.001),
+                'entropy_cost': params.get('entropy_cost', 0.01),
+                'batch_size': params.get('batch_size', 32),
+                'num_critic_before_pi': params.get('num_critic_before_pi', 8)
+            },
+            'optimization_info': best_params
+        }, f, indent=2)
+
+    print(f"\n优化参数配置已保存到: {config_file}")
+
+    # 测试MCTS整合（使用优化参数）
+    print("\n测试优化MCTS整合...")
+    try:
+        from algorimths.mcts import AlphaGoMCTS
+        mcts = AlphaGoMCTS(
+            deep_policy_agent="./saved_models_optimized/deep_policy_optimized",
+            rollout_policy_agent="./saved_models_optimized/rollout_policy_optimized"
+        )
+        print("优化MCTS整合测试通过")
+    except Exception as e:
+        print(f"优化MCTS整合警告: {e}")
+
+    # 关闭会话
+    deep_sess.close()
+    rollout_sess.close()
+    print("已关闭深度网络的会话")
+    print("已关闭浅层网络的会话")
+
+    # 绘制训练曲线
+    print("生成训练曲线...")
+    monitor.plot_training()
+    print("优化训练完成！")
+
+    return {"deep": deep_agent, "rollout": rollout_agent}
+
 
 if __name__ == "__main__":
-    # 训练两个网络
-    trained_agents = train_both_networks()
+    # 选择训练模式
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Mini AlphaGo训练")
+    parser.add_argument("--mode", choices=["original", "optimized"], default="optimized",
+                        help="训练模式: original-原始参数, optimized-优化参数")
+
+    args = parser.parse_args()
+
+    if args.mode == "original":
+        print("使用原始参数训练...")
+        trained_agents = train_both_networks()
+    else:
+        print("使用优化参数训练...")
+        trained_agents = train_both_networks_with_optimized_params()

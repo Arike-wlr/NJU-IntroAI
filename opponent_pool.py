@@ -137,7 +137,7 @@ class OpponentPool:
         if weakest in self.elo_ratings:
             del self.elo_ratings[weakest]
 
-        print(f"🗑️  移除最弱对手: {weakest}")
+        print(f"移除最弱对手: {weakest}")
 
     def get_opponent(self, strategy="balanced", require_rollout=False):
         """根据策略选择对手"""
@@ -159,7 +159,7 @@ class OpponentPool:
                 if self.model_types.get(name, {}).get('rollout', False)
             ]
             if not candidate_names:
-                print("⚠️  没有找到有浅层网络的对手，返回所有对手")
+                print("没有找到有浅层网络的对手，返回所有对手")
                 candidate_names = list(base_names)
 
         if not candidate_names:
@@ -194,9 +194,12 @@ class OpponentPool:
     def load_agent(self, name, model_type="deep"):
         """加载指定名称和类型的agent"""
         model_path = f"{self.pool_dir}/{name}_{model_type}"
-
+        print(f"[DEBUG] 正在加载对手:")
+        print(f"  - 名称: {name}")
+        print(f"  - 类型: {model_type}")
+        print(f"  - 路径: {model_path}")
         if not tf.train.checkpoint_exists(model_path):
-            print(f"❌ 找不到模型文件: {model_path}")
+            print(f"找不到模型文件: {model_path}")
             return None, None
 
         # 根据模型类型确定网络结构
@@ -250,7 +253,7 @@ class OpponentPool:
         self.elo_ratings[agent1_name] = r1 + k * (result - e1)
         self.elo_ratings[agent2_name] = r2 + k * ((1 - result) - e2)
 
-        print(f"📊 Elo更新: {agent1_name}({r1:.0f}→{self.elo_ratings[agent1_name]:.0f}) "
+        print(f"Elo更新: {agent1_name}({r1:.0f}→{self.elo_ratings[agent1_name]:.0f}) "
               f"vs {agent2_name}({r2:.0f}→{self.elo_ratings[agent2_name]:.0f}) "
               f"结果={result}")
 
@@ -286,10 +289,6 @@ class OpponentPool:
 
     def print_pool_status(self):
         """打印对手池状态"""
-        print("\n" + "=" * 60)
-        print("🎯 对手池状态")
-        print("=" * 60)
-
         info = self.get_pool_info()
         for i, model_info in enumerate(info, 1):
             deep_str = "✓" if model_info['has_deep'] else "✗"
@@ -299,5 +298,3 @@ class OpponentPool:
                   f"胜率: {model_info['win_rate']:5.1%} | "
                   f"深度: {deep_str} | "
                   f"浅层: {rollout_str}")
-
-        print("=" * 60)

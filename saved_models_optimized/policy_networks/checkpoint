@@ -1,0 +1,7 @@
+model_checkpoint_path: "rollout_policy_optimized"
+all_model_checkpoint_paths: "rollout_checkpoint_100_iter_100"
+all_model_checkpoint_paths: "rollout_checkpoint_200_iter_200"
+all_model_checkpoint_paths: "rollout_checkpoint_300_iter_300"
+all_model_checkpoint_paths: "rollout_checkpoint_400_iter_400"
+all_model_checkpoint_paths: "rollout_checkpoint_500_iter_500"
+all_model_checkpoint_paths: "rollout_policy_optimized"

@@ -2,10 +2,12 @@ import os
 
 os.environ['BOARD_SIZE'] = '5'
 import numpy as np
+import tensorflow as tf
 from environment.go import Position
 from environment import coords
 from opponent_pool import OpponentPool
-import time
+from agent.agent import GoPolicyAgent
+import json
 
 
 def play_game_between_agents(agent1, agent2=None, agent1_is_black=True):
@@ -59,40 +61,85 @@ def play_game_between_agents(agent1, agent2=None, agent1_is_black=True):
         return -result
 
 
-def train_with_opponent_pool_simple():
-    """简化的对手池训练"""
-    print("=== 简化版对手池训练 ===")
+def create_optimized_agents():
+    """创建使用优化参数的agent"""
+    # 加载优化参数
+    try:
+        with open("./bayesian_optimization/best_params.json", 'r') as f:
+            best_params = json.load(f)
+        params = best_params['params']
+
+        print("使用贝叶斯优化参数:")
+        print(f"  Critic学习率: {params.get('critic_lr', 0.01):.6f}")
+        print(f"  Policy学习率: {params.get('pi_lr', 0.001):.6f}")
+        print(f"  熵正则化: {params.get('entropy_cost', 0.01):.4f}")
+        print(f"  批次大小: {params.get('batch_size', 32)}")
+        print(f"  Critic更新次数: {params.get('num_critic_before_pi', 8)}")
+    except FileNotFoundError:
+        print("警告: 未找到优化参数文件，使用默认参数")
+        params = {
+            'critic_lr': 0.01,
+            'pi_lr': 0.001,
+            'entropy_cost': 0.01,
+            'batch_size': 32,
+            'num_critic_before_pi': 8
+        }
+
+    # 创建深度网络
+    tf.reset_default_graph()
+    deep_sess = tf.Session()
+    deep_agent = GoPolicyAgent(
+        session=deep_sess,
+        hidden_layers=[256, 256],
+        loss_str="a2c"
+    )
+
+    # 应用优化参数
+    deep_agent.agent._critic_learning_rate = params.get('critic_lr', 0.01)
+    deep_agent.agent._pi_learning_rate = params.get('pi_lr', 0.001)
+    deep_agent.agent._entropy_cost = params.get('entropy_cost', 0.01)
+    deep_agent.agent._batch_size = params.get('batch_size', 32)
+    deep_agent.agent._num_critic_before_pi = params.get('num_critic_before_pi', 8)
+
+    deep_sess.run(tf.global_variables_initializer())
+
+    # 创建浅层网络
+    tf.reset_default_graph()
+    rollout_sess = tf.Session()
+    rollout_agent = GoPolicyAgent(
+        session=rollout_sess,
+        hidden_layers=[64],
+        loss_str="a2c"
+    )
+    rollout_sess.run(tf.global_variables_initializer())
+
+    return deep_agent, rollout_agent, deep_sess, rollout_sess
+
+
+def train_with_opponent_pool_optimized():
+    """使用优化参数的对手池训练"""
+    print("=" * 70)
+    print("优化参数对手池训练")
+    print("=" * 70)
 
     # 初始化对手池
-    opponent_pool = OpponentPool(pool_dir="./opponent_pool", max_size=8)
+    opponent_pool = OpponentPool(pool_dir="./opponent_pool_optimized", max_size=8)
 
     # 训练参数
     total_iterations = 10
     games_per_iteration = 20
     eval_games = 10
 
-    # 创建初始agent
-    from agent.agent import create_policy_agent
-
-    print("\n🔄 创建初始网络...")
-    deep_agent, deep_sess = create_policy_agent(
-        hidden_layers=[256, 256],
-        loss_str="a2c",
-        name="current_deep"
-    )
-
-    rollout_agent, rollout_sess = create_policy_agent(
-        hidden_layers=[64],
-        loss_str="a2c",
-        name="current_rollout"
-    )
+    # 使用优化参数创建agent
+    print("创建优化参数网络...")
+    deep_agent, rollout_agent, deep_sess, rollout_sess = create_optimized_agents()
 
     # 如果对手池为空，添加初始模型
     if len(opponent_pool.opponents) == 0:
-        print("🆕 对手池为空，创建初始模型...")
+        print("对手池为空，创建初始模型...")
 
         # 评估初始模型
-        print("📊 评估初始模型...")
+        print("评估初始模型...")
         eval_wins = 0
         for i in range(5):
             result = play_game_between_agents(deep_agent, None)
@@ -104,17 +151,17 @@ def train_with_opponent_pool_simple():
         # 添加到对手池
         opponent_pool.add_double_agent(
             deep_agent, rollout_agent,
-            name=f"initial_wr{initial_win_rate:.2f}",
+            name=f"optimized_initial_wr{initial_win_rate:.2f}",
             win_rate=initial_win_rate
         )
 
-        print(f"✅ 创建初始模型，胜率: {initial_win_rate:.2%}")
+        print(f"创建初始模型，胜率: {initial_win_rate:.2%}")
 
     iteration_stats = []
 
     for iteration in range(total_iterations):
         print(f"\n{'=' * 60}")
-        print(f"🎯 第 {iteration + 1}/{total_iterations} 轮迭代")
+        print(f"第 {iteration + 1}/{total_iterations} 轮迭代")
         print('=' * 60)
 
         # 打印对手池状态
@@ -135,14 +182,14 @@ def train_with_opponent_pool_simple():
 
             if opp_deep_agent:
                 elo = opponent_pool.elo_ratings.get(opponent_name, 1500)
-                print(f"⚔️  对战对手: {opponent_name} (Elo: {elo:.0f})")
+                print(f"对战对手: {opponent_name} (Elo: {elo:.0f})")
             else:
                 opponent_name = None
         else:
             opponent_name = None
 
         # 2. 进行训练对局
-        print(f"\n🎮 开始训练对局...")
+        print(f"开始训练对局...")
         wins = 0
         results = []
 
@@ -172,13 +219,13 @@ def train_with_opponent_pool_simple():
         win_rate = wins / games_per_iteration
         avg_result = np.mean(results)
 
-        print(f"\n📊 训练结果:")
+        print(f"训练结果:")
         print(f"  胜率: {win_rate:.2%}")
         print(f"  平均结果: {avg_result:.3f}")
 
         # 4. 更新Elo（如果是对手池中的对手）
         if opponent_name and opp_deep_agent:
-            current_agent_name = f"iter{iteration:03d}"
+            current_agent_name = f"optimized_iter{iteration:03d}"
 
             # 计算Elo结果
             if win_rate > 0.6:
@@ -200,8 +247,8 @@ def train_with_opponent_pool_simple():
                 opp_deep_sess.close()
 
         # 5. 将当前agent添加到对手池
-        agent_name = f"iter{iteration:03d}_wr{win_rate:.2f}"
-        print(f"\n💾 保存当前模型到对手池: {agent_name}")
+        agent_name = f"optimized_iter{iteration:03d}_wr{win_rate:.2f}"
+        print(f"保存当前模型到对手池: {agent_name}")
 
         opponent_pool.add_double_agent(
             deep_agent, rollout_agent,
@@ -210,7 +257,7 @@ def train_with_opponent_pool_simple():
         )
 
         # 6. 评估当前agent性能
-        print(f"\n📈 评估当前agent性能...")
+        print(f"评估当前agent性能...")
         eval_wins = 0
         eval_results = []
 
@@ -223,14 +270,15 @@ def train_with_opponent_pool_simple():
         eval_win_rate = eval_wins / eval_games
         eval_avg_result = np.mean(eval_results)
 
-        print(f"🎯 评估结果:")
+        print(f"评估结果:")
         print(f"  胜率: {eval_win_rate:.2%}")
         print(f"  平均结果: {eval_avg_result:.3f}")
 
         # 7. 保存检查点
-        print(f"\n💾 保存检查点...")
-        deep_agent.save(f"./saved_models/opponent_pool/deep_iteration_{iteration}")
-        rollout_agent.save(f"./saved_models/opponent_pool/rollout_iteration_{iteration}")
+        print(f"保存检查点...")
+        os.makedirs("./saved_models_optimized/opponent_pool", exist_ok=True)
+        deep_agent.save(f"./saved_models_optimized/opponent_pool/deep_iteration_{iteration}")
+        rollout_agent.save(f"./saved_models_optimized/opponent_pool/rollout_iteration_{iteration}")
 
         iteration_stats.append({
             'iteration': iteration,
@@ -241,14 +289,9 @@ def train_with_opponent_pool_simple():
         })
 
     # 保存最终模型
-    print("\n💾 保存最终模型...")
-    deep_agent.save("./saved_models/opponent_pool/deep_policy_final")
-    rollout_agent.save("./saved_models/opponent_pool/rollout_policy_final")
-
-    # 打印统计信息
-    print("\n" + "=" * 60)
-    print("📊 训练完成统计")
-    print("=" * 60)
+    print(f"保存最终模型...")
+    deep_agent.save("./saved_models_optimized/opponent_pool/deep_policy_final")
+    rollout_agent.save("./saved_models_optimized/opponent_pool/rollout_policy_final")
 
     for stat in iteration_stats:
         print(f"Iteration {stat['iteration']:2d}: "
@@ -256,8 +299,6 @@ def train_with_opponent_pool_simple():
               f"评估胜率={stat['eval_win_rate']:5.1%} | "
               f"平均结果={stat['eval_avg_result']:6.3f} | "
               f"对手={stat['opponent']}")
-
-    print("=" * 60)
 
     # 打印对手池最终状态
     opponent_pool.print_pool_status()
@@ -270,20 +311,19 @@ def train_with_opponent_pool_simple():
 
 
 if __name__ == "__main__":
-    # 先删除旧的对手池和模型，从头开始
     import shutil
     import os
+    if os.path.exists("./opponent_pool_optimized"):
+        shutil.rmtree("./opponent_pool_optimized")
+        print("删除旧对手池")
 
-    # 删除旧文件
-    if os.path.exists("./opponent_pool"):
-        shutil.rmtree("./opponent_pool")
-        print("🗑️  删除旧对手池")
+    if os.path.exists("./saved_models_optimized/opponent_pool"):
+        shutil.rmtree("./saved_models_optimized/opponent_pool")
+        print("删除旧模型")
 
-    if os.path.exists("./saved_models/opponent_pool"):
-        shutil.rmtree("./saved_models/opponent_pool")
-        print("🗑️  删除旧模型")
+    os.makedirs("./saved_models_optimized", exist_ok=True)
 
-    os.makedirs("./saved_models", exist_ok=True)
+    # 运行优化参数训练
+    deep_agent, rollout_agent, stats = train_with_opponent_pool_optimized()
 
-    # 开始训练
-    deep_agent, rollout_agent, stats = train_with_opponent_pool_simple()
+    print("优化参数训练完成！")

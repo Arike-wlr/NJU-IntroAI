@@ -4,9 +4,19 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a209a3a7-e977-44f0-952a-b0750bef703e" name="更改" comment="调参框架">
+    <list default="true" id="a209a3a7-e977-44f0-952a-b0750bef703e" name="更改" comment="调参框架v2">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/agent/agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/agent/agent.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bayesian.py" beforeDir="false" afterPath="$PROJECT_DIR$/bayesian.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/both_networks_training.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/both_networks_training_1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/opponent_pool.py" beforeDir="false" afterPath="$PROJECT_DIR$/opponent_pool.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/opponent_pool_train.py" beforeDir="false" afterPath="$PROJECT_DIR$/opponent_pool_train.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/policy_gradient_train.py" beforeDir="false" afterPath="$PROJECT_DIR$/policy_gradient_train.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/alphagomcts_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/alphagomcts_test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/屏幕截图 2025-12-24 190243.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/屏幕截图 2026-01-01 203105.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/屏幕截图 2026-01-01 210032.png" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -43,27 +53,32 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "Python.a2c_vs_random_demo.executor": "Run",
-    "Python.alphagomcts_test.executor": "Run",
-    "Python.bayesian.executor": "Run",
-    "Python.dqn_vs_random_demo.executor": "Run",
-    "Python.mcts_test.executor": "Run",
-    "Python.opponent_pool_train.executor": "Run",
-    "Python.policy_gradient_train (1).executor": "Run",
-    "Python.policy_gradient_train.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "HW5",
-    "ignore.virus.scanning.warn.message": "true",
-    "last_opened_file_path": "D:/mini_go/mini_go",
-    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;Python.a2c_vs_random_demo.executor&quot;: &quot;Run&quot;,
+    &quot;Python.alphagomcts_test.executor&quot;: &quot;Run&quot;,
+    &quot;Python.bayesian.executor&quot;: &quot;Run&quot;,
+    &quot;Python.dqn_vs_random_demo.executor&quot;: &quot;Run&quot;,
+    &quot;Python.mcts_test.executor&quot;: &quot;Run&quot;,
+    &quot;Python.opponent_pool_train.executor&quot;: &quot;Run&quot;,
+    &quot;Python.policy_gradient_train (1).executor&quot;: &quot;Run&quot;,
+    &quot;Python.policy_gradient_train.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;HW5&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/mini_go/mini_go&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
   }
-}]]></component>
-  <component name="RunManager" selected="Python.bayesian">
+}</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\mini_go\mini_go\figures" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Python.opponent_pool_train">
     <configuration name="alphagomcts_test" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="mini_go" />
       <option name="ENV_FILES" value="" />
@@ -176,10 +191,10 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.bayesian" />
-        <item itemvalue="Python.alphagomcts_test" />
         <item itemvalue="Python.opponent_pool_train" />
+        <item itemvalue="Python.alphagomcts_test" />
         <item itemvalue="Python.policy_gradient_train (1)" />
+        <item itemvalue="Python.bayesian" />
         <item itemvalue="Python.policy_gradient_train" />
       </list>
     </recent_temporary>
@@ -279,7 +294,15 @@
       <option name="project" value="LOCAL" />
       <updated>1767430886939</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="调参框架v2">
+      <option name="closed" value="true" />
+      <created>1767433068353</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1767433068353</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -304,7 +327,8 @@
     <MESSAGE value="双层网络MCTS能测试了" />
     <MESSAGE value="对手池，训练完了，测试完了" />
     <MESSAGE value="调参框架" />
-    <option name="LAST_COMMIT_MESSAGE" value="调参框架" />
+    <MESSAGE value="调参框架v2" />
+    <option name="LAST_COMMIT_MESSAGE" value="调参框架v2" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
