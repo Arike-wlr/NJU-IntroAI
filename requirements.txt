@@ -1,5 +1,5 @@
 # The single source of truth for the OpenSpiel pip dependencies.
-absl-py == 0.7.1
+absl-py~=2.1.0
 tensorflow < 1.15.0, >= 1.14.0
 dm-sonnet == 1.32
 IPython == 5.8.0
@@ -9,3 +9,5 @@ nashpy == 0.0.19
 # scipy >= 1.1.0
 attrs == 19.1.0
 numpy~=1.21.6
+bayesian-optimization~=1.4.3
+matplotlib~=3.5.3

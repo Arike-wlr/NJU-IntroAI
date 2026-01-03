@@ -20,10 +20,10 @@ def print_simple_board(board):
 def test_model_loading():
     """测试模型加载"""
     # 检查模型文件
-    deep_path = "../saved_models/policy_networks/deep_policy_final"
-    rollout_path = "../saved_models/policy_networks/rollout_policy_final"
-    # deep_path = "../saved_models/opponent_pool/deep_policy_final"
-    # rollout_path = "../saved_models/opponent_pool/rollout_policy_final"
+    # deep_path = "../saved_models/policy_networks/deep_policy_final"
+    # rollout_path = "../saved_models/policy_networks/rollout_policy_final"
+    deep_path = "../saved_models/opponent_pool/deep_policy_final"
+    rollout_path = "../saved_models/opponent_pool/rollout_policy_final"
 
     print(f"模型文件检查:")
     print(f"  深度网络: {os.path.exists(deep_path + '.index')}")
